@@ -1,5 +1,7 @@
 # Bash script to install applications for a fresh Ubuntu Install
 
+#!/bin/bash
+
 # Update and Upgrade
 sudo apt update && sudo apt upgrade -y
 
@@ -68,3 +70,61 @@ sudo apt install thunar-custom-actions -y
 
 # Install Thunar Send To
 sudo apt install thunar-sendto-clamtk -y
+
+# Install wallpaper manager
+sudo apt install variety -y
+
+# Install Gnome Disk Utility
+sudo apt install gnome-disk-utility -y
+
+# Install Gnome System Monitor
+sudo apt install gnome-system-monitor -y
+
+# Install Gnome Screenshot
+sudo apt install gnome-screenshot -y
+
+# Install Gnome Calculator
+sudo apt install gnome-calculator -y
+
+# Install Gnome Calendar
+sudo apt install gnome-calendar -y
+
+# Install Gnome Clocks
+sudo apt install gnome-clocks -y
+
+# Install Gnome Weather
+sudo apt install gnome-weather -y
+
+# Install Gnome Maps
+sudo apt install gnome-maps -y
+
+# Install Terraform
+sudo apt install terraform -y
+
+# Install Docker
+sudo apt install docker.io -y
+
+# Install Docker Compose
+sudo apt install docker-compose -y
+
+# Install nix package manager
+curl -L https://nixos.org/nix/install | sh
+
+## Change the transparency to 50% for the Terminal
+# Get the current profile
+PROFILE=$(gsettings get org.gnome.Terminal.ProfilesList default)
+
+# Remove leading and trailing single quotes
+PROFILE=${PROFILE:1:-1}
+
+# Set the transparency
+gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE/ use-transparent-background true
+gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$PROFILE/ background-transparency-percent 50
+
+sudo apt-get install -y grub-pc
+
+# Update GRUB
+echo "Updating GRUB..."
+sudo update-grub
+
+
