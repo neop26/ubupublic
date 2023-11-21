@@ -44,6 +44,15 @@ sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update
 sudo apt-get install terraform -y
 
+# Installing Terraform Export
+curl -sSL https://packages.microsoft.com/keys/microsoft.asc > /etc/apt/trusted.gpg.d/microsoft.asc
+ver=22.04
+apt-add-repository https://packages.microsoft.com/ubuntu/${ver}/prod
+apt-get install aztfexport
+
+# Install Azure CLI
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
 # Install Docker
 sudo apt install docker.io -y
 
