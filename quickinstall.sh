@@ -22,6 +22,8 @@ sudo flatpak install flathub com.visualstudio.code -y
 sudo flatpak install flathub com.microsoft.Edge -y
 # Flathub install Xmind
 sudo flatpak install flathub net.xmind.XMind -y
+# Flatfub install plex
+flatpak install flathub tv.plex.PlexDesktop
 
 # Installing Twingate
 curl -s https://binaries.twingate.com/client/linux/install.sh | sudo bash
