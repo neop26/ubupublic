@@ -24,6 +24,8 @@ sudo flatpak install flathub com.microsoft.Edge -y
 sudo flatpak install flathub net.xmind.XMind -y
 # Flatfub install plex
 flatpak install flathub tv.plex.PlexDesktop
+# Flathub install discord
+flatpak install flathub com.discordapp.Discord
 
 # Installing Twingate
 curl -s https://binaries.twingate.com/client/linux/install.sh | sudo bash
