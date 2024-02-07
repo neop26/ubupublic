@@ -13,3 +13,6 @@ sudo apt install neofetch -y
 
 # Install Htop
 sudo apt install htop -y
+
+# Ability to deploy repository
+sudo apt install --reinstall software-properties-common -y
