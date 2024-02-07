@@ -5,3 +5,8 @@
   sudo apt install cmake -y
   sudo apt-get install ninja-build gettext libtool-bin cmake g++ pkg-config unzip curl -y
   sudo apt-get install neovim -y
+  # Configuring LazyVim
+  sudo mkdir .config/nvim
+  sudo git clone https://github.com/LazyVim/starter ~/.config/nvim
+  sudo cd ~/.config/nvim
+  sudo nvim
