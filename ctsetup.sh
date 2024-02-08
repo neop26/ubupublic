@@ -19,24 +19,20 @@ sudo apt install --reinstall software-properties-common -y
 
 ## Deploying Terraform onto Ubuntu Container
 # Add the HashiCorp GPG key.
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-
-# Add the official HashiCorp Linux repository.
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-
-# Update and install Terraform
-sudo apt update && sudo apt install terraform -y
-
-## Deploying Bicep onto Ubuntu Container
-# Add the Microsoft GPG key
-curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft-archive-keyring.gpg > /dev/null
-
-# Add the Microsoft repository
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/microsoft.list > /dev/null
-
+sudo apt install -y gnupg software-properties-common curl -y
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform
+terraform -install-autocomplete
+source ~/.bashrc
+## Test by terraform tab (Twice) this should show auto complete text
+echo "Terraform has been installed!"
 # Update and install Bicep
-sudo apt update && sudo apt install bicep -y
-
+curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+chmod +x ./bicep
+sudo mv ./bicep /usr/local/bin/bicep
+bicep --help # Verify Deployment
+echo "Bicep has been installed!"
 # Deploying Nvim
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
 sudo apt-get update -y
@@ -48,5 +44,6 @@ sudo apt-get install neovim -y
 # Configuring LazyVim
 sudo mkdir .config/nvim
 sudo git clone https://github.com/LazyVim/starter ~/.config/nvim
+echo "Nvim has been installed!"
 
 echo "All done!"
