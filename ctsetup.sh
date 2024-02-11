@@ -48,4 +48,12 @@ sudo mkdir .config/nvim
 sudo git clone https://github.com/LazyVim/starter ~/.config/nvim
 echo "Nvim has been installed!"
 
+# Installing Powershell
+sudo apt install dirmngr lsb-release ca-certificates software-properties-common apt-transport-https curl -y
+curl -fSsL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor | sudo tee /usr/share/keyrings/powershell.gpg > /dev/null
+echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/powershell.gpg] https://packages.microsoft.com/ubuntu/22.04/prod/ jammy main" | sudo tee /etc/apt/sources.list.d/powershell.list
+sudo apt install powershell
+echo "PowerShell Installed"
+
+
 echo "All done!"
