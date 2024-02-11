@@ -1,3 +1,3 @@
 # Introduction
 
-This repo is to help deploy an Ubuntu Installation operation asap.
+This repo is to help deploy an Ubuntu Installation operational asap.
