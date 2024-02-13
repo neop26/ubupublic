@@ -55,5 +55,8 @@ echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/powershell.gpg] 
 sudo apt install powershell
 echo "PowerShell Installed"
 
+# Install Nodejs
+sudo apt install nodejs
+sudo apt install npm
 
 echo "All done!"
