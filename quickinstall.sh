@@ -23,9 +23,9 @@ sudo flatpak install flathub com.microsoft.Edge -y
 # Flathub install Xmind
 sudo flatpak install flathub net.xmind.XMind -y
 # Flatfub install plex
-flatpak install flathub tv.plex.PlexDesktop
+sudo flatpak install flathub tv.plex.PlexDesktop -y
 # Flathub install discord
-flatpak install flathub com.discordapp.Discord
+sudo flatpak install flathub com.discordapp.Discord -y
 
 # Installing Twingate
 curl -s https://binaries.twingate.com/client/linux/install.sh | sudo bash
@@ -41,6 +41,12 @@ sudo apt install htop -y
 
 #grub
 sudo apt-get install -y grub-pc
+
+# Installing Remmina
+sudo apt-add-repository ppa:remmina-ppa-team/remmina-next -y
+sudo apt update -y
+sudo apt install remmina remmina-plugin-rdp remmina-plugin-secret -y
+
 
 # Update GRUB
 echo "Updating GRUB..."
