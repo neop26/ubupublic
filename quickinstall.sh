@@ -47,9 +47,8 @@ sudo apt-add-repository ppa:remmina-ppa-team/remmina-next -y
 sudo apt update -y
 sudo apt install remmina remmina-plugin-rdp remmina-plugin-secret -y
 
-
 # Update GRUB
 echo "Updating GRUB..."
 sudo update-grub
 
-
+echo "Installation has completed"
