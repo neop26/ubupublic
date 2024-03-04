@@ -59,4 +59,12 @@ echo "PowerShell Installed"
 sudo apt install nodejs
 sudo apt install npm
 
+# Install pip
+sudo apt install python3-pip -y
+
+# Install oh-my-zsh
+sudo apt install zsh -y
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+echo "Oh-My-Zsh has been installed!"
+
 echo "All done!"
