@@ -56,8 +56,8 @@ sudo apt install powershell
 echo "PowerShell Installed"
 
 # Install Nodejs
-sudo apt install nodejs
-sudo apt install npm
+sudo apt install nodejs -y
+sudo apt install npm -y 
 
 # Install pip
 sudo apt install python3-pip -y
