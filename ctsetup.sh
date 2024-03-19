@@ -63,13 +63,13 @@ sudo apt install npm -y
 sudo apt install python3-pip -y
 
 # Install Ansible
-# sudo apt-add-repository ppa:ansible/ansible
-# sudo apt update
-# sudo apt install ansible
+ sudo apt-add-repository ppa:ansible/ansible
+ sudo apt update
+ sudo apt install ansible
 
 # Install oh-my-zsh
 sudo apt install zsh -y
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+sudo sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 echo "Oh-My-Zsh has been installed!"
 
 echo "All done!"
