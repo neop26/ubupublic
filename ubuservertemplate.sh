@@ -123,6 +123,9 @@ printf "\n"
 ##
 ##echo "All done!"
 
+# Ensuring all in the scripts folder are made executable
+chmod +x install-scripts/*
+
 if [ "$update" == "Y" ]; then
     execute_script "update.sh"
 fi
