@@ -121,10 +121,10 @@ printf "\n"
 # Ensuring all in the scripts folder are made executable
 chmod +x install-scripts/*
 
-execute_script "fonts.sh"
 
 if [ "$update" == "Y" ]; then
     execute_script "update.sh"
+    execute_script "fonts.sh"
 fi
 
 if [ "$zsh" == "Y" ]; then
