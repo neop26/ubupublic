@@ -90,12 +90,12 @@ if command -v zsh >/dev/null; then
     	cp -b "$HOME/.zshrc" "$HOME/.zshrc-backup" || true
 	fi
 
-	if [ -f "$HOME/.zprofile" ]; then
-    	cp -b "$HOME/.zprofile" "$HOME/.zprofile-backup" || true
-	fi
+	#if [ -f "$HOME/.zprofile" ]; then
+    #	cp -b "$HOME/.zprofile" "$HOME/.zprofile-backup" || true
+	#fi
 
     cp -r 'assets/.zshrc' ~/
-    cp -r 'assets/.zprofile' ~/
+    #cp -r 'assets/.zprofile' ~/
 
     printf "${NOTE} Changing default shell to zsh...\n"
 
