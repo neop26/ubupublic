@@ -121,6 +121,8 @@ printf "\n"
 # Ensuring all in the scripts folder are made executable
 chmod +x install-scripts/*
 
+execute_script "fonts.sh"
+
 if [ "$update" == "Y" ]; then
     execute_script "update.sh"
 fi
@@ -136,3 +138,13 @@ fi
 if [ "$neofetch" == "Y" ]; then
     execute_script "neofetch.sh"
 fi
+
+# Clean up
+printf "\n${OK} performing some clean up.\n"
+if [ -e "JetBrainsMono.tar.xz" ]; then
+    echo "JetBrainsMono.tar.xz found. Deleting..."
+    rm JetBrainsMono.tar.xz
+    echo "JetBrainsMono.tar.xz deleted successfully."
+fi
+
+clear
