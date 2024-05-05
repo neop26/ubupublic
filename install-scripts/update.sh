@@ -5,7 +5,7 @@
 # Update the package list
 sudo apt update
 
-sudo update curl -y
+sudo apt install curl -y
 
 sudo apt install --reinstall software-properties-common -y
 
