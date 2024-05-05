@@ -26,7 +26,7 @@ printf "\n%.0s" {1..2}
 
 # Create Directory for Install Logs
 if [ ! -d Install-Logs ]; then
-    mkdir Install-Logs
+    mkdir ~/Install-Logs
 fi
 
 # Set some colors for output messages
