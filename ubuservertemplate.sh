@@ -25,22 +25,22 @@ printf "\n%.0s" {1..2}
 
 
 # Update and Upgrade
-sudo apt update && apt upgrade -y
+sudo apt update && sudo apt upgrade -y
 
 # Add Net Tools
-apt install net-tools -y
+sudo apt install net-tools -y
 
 # Install Neofetch
-apt install neofetch -y
+sudo apt install neofetch -y
 
 # Install Htop
-apt install htop -y
+sudo apt install htop -y
 
 # Ability to deploy repository
-apt install --reinstall software-properties-common -y
+sudo apt install --reinstall software-properties-common -y
 
 # Install oh-my-zsh
-apt install zsh -y
+sudo apt install zsh -y
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 echo "Oh-My-Zsh has been installed!"
 
