@@ -26,7 +26,7 @@ printf "\n%.0s" {1..2}
 
 # Create Directory for Install Logs
 if [ ! -d Install-Logs ]; then
-    mkdir ~/Install-Logs
+    mkdir Install-Logs
 fi
 
 # Set some colors for output messages
@@ -99,8 +99,7 @@ execute_script() {
 
 # Initialize variables to store user responses
 zsh=""
-
-
+nettools=""
 
 # Collect user responses to all questions
 printf "\n"
@@ -111,27 +110,13 @@ printf "\n"
 ask_yes_no "-Install zsh & oh-my-zsh plus (OPTIONAL) pokemon-colorscripts for tty?" zsh
 printf "\n"
 
-### Update and Upgrade
-##sudo apt update && sudo apt upgrade -y
-##
-### Add Net Tools
-##sudo apt install net-tools -y
-##
-### Install Neofetch
-##sudo apt install neofetch -y
-##
-### Install Htop
-##sudo apt install htop -y
-##
-### Ability to deploy repository
-##sudo apt install --reinstall software-properties-common -y
-##
-### Install oh-my-zsh
-##sudo apt install zsh -y
-##sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-##echo "Oh-My-Zsh has been installed!"
-##
-##echo "All done!"
+printf "\n"
+ask_yes_no "-Install Net-tools for this system" nettools
+printf "\n"
+
+printf "\n"
+ask_yes_no "-Install Neofetch for this system" neofetch
+printf "\n"
 
 # Ensuring all in the scripts folder are made executable
 chmod +x install-scripts/*
@@ -142,4 +127,12 @@ fi
 
 if [ "$zsh" == "Y" ]; then
     execute_script "zsh.sh"
+fi
+
+if [ "$nettools" == "Y" ]; then
+    execute_script "nettools.sh"
+fi
+
+if [ "$neofetch" == "Y" ]; then
+    execute_script "neofetch.sh"
 fi
