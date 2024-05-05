@@ -25,7 +25,7 @@ printf "\n%.0s" {1..2}
 
 
 # Update and Upgrade
-apt update && apt upgrade -y
+sudo apt update && apt upgrade -y
 
 # Add Net Tools
 apt install net-tools -y
