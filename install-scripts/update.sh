@@ -7,6 +7,9 @@ sudo apt update
 
 sudo apt install curl -y
 
+sudo apt-get install -y language-pack-en
+sudo update-locale LANG=en_NZ.UTF-8
+
 sudo apt install --reinstall software-properties-common -y
 
 # Install Neofetch
