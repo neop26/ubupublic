@@ -96,9 +96,19 @@ execute_script() {
     fi
 }
 
+
+# Initialize variables to store user responses
+zsh=""
+
+
+
 # Collect user responses to all questions
 printf "\n"
 ask_yes_no "-Shall I update this system" update
+printf "\n"
+
+printf "\n"
+ask_yes_no "-Install zsh & oh-my-zsh plus (OPTIONAL) pokemon-colorscripts for tty?" zsh
 printf "\n"
 
 ### Update and Upgrade
@@ -128,4 +138,8 @@ chmod +x install-scripts/*
 
 if [ "$update" == "Y" ]; then
     execute_script "update.sh"
+fi
+
+if [ "$zsh" == "Y" ]; then
+    execute_script "zsh.sh"
 fi
