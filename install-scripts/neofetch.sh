@@ -14,4 +14,5 @@ cp -b "~/.config/neofetch/config.conf" "~/.config/neofetch/config.conf-backup" |
 fi
 
 # Copy the neofetch config file
+mkdir -p ~/.config/neofetch
  cp -r 'assets/config.conf'  ~/.config/neofetch/
