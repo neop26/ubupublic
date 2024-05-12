@@ -98,14 +98,13 @@ if command -v zsh >/dev/null; then
     #cp -r 'assets/.zprofile' ~/
 
     printf "${NOTE} Changing default shell to zsh...\n"
-    chsh -s $(which zsh)
 
-	#while ! chsh -s $(which zsh); do
-    #echo "${ERROR} Authentication failed. Please enter the correct password."
-    #sleep 1	
-	#done
-	#printf "\n"
-	#printf "${NOTE} Shell changed successfully to zsh.\n" 2>&1 | tee -a "$LOG"
+	while ! chsh -s $(which zsh); do
+    echo "${ERROR} Authentication failed. Please enter the correct password."
+    sleep 1	
+	done
+	printf "\n"
+	printf "${NOTE} Shell changed successfully to zsh.\n" 2>&1 | tee -a "$LOG"
 
 fi
 

@@ -118,6 +118,10 @@ printf "\n"
 ask_yes_no "-Install Neofetch for this system" neofetch
 printf "\n"
 
+printf "\n"
+ask_yes_no "-Build this box to be an Azure Dev Box" azdev
+printf "\n"
+
 # Ensuring all in the scripts folder are made executable
 chmod +x install-scripts/*
 
@@ -138,6 +142,11 @@ fi
 if [ "$neofetch" == "Y" ]; then
     execute_script "neofetch.sh"
 fi
+
+if [ "$azdev" == "Y" ]; then
+    execute_script "azuredev.sh"
+fi
+
 
 # Clean up
 printf "\n${OK} performing some clean up.\n"
