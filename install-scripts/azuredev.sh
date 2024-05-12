@@ -54,5 +54,5 @@ echo "Pip has been installed!"
 # Install Ansible
 sudo apt-add-repository ppa:ansible/ansible
 sudo apt update
-sudo apt install ansible
+sudo apt install ansible -y
 echo "Ansible has been installed!"
