@@ -122,6 +122,10 @@ printf "\n"
 ask_yes_no "-Build this box to be an Azure Dev Box" azdev
 printf "\n"
 
+printf "\n"
+ask_yes_no "-Install Docker on this server" docker
+printf "\n"
+
 # Ensuring all in the scripts folder are made executable
 chmod +x install-scripts/*
 
@@ -147,6 +151,9 @@ if [ "$azdev" == "Y" ]; then
     execute_script "azuredev.sh"
 fi
 
+if [ "$docker" == "Y" ]; then
+    execute_script "docker.sh"
+fi
 
 # Clean up
 printf "\n${OK} performing some clean up.\n"
