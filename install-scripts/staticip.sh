@@ -10,6 +10,7 @@ read -p "Enter the DNS server IP (e.g., 8.8.8.8): " dns_ip
 
 # Backup current netplan configuration
 sudo cp /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml.backup
+sudo rm -r /etc/netplan/50-cloud-init.yaml
 
 # Generate new netplan configuration
 cat << EOF | sudo tee /etc/netplan/01-netcfg.yaml
