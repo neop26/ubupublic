@@ -118,6 +118,14 @@ printf "\n"
 ask_yes_no "-Install Neofetch for this system" neofetch
 printf "\n"
 
+printf "\n"
+ask_yes_no "-Setup Static IP for this server" staticip
+printf "\n"
+
+printf "\n"
+ask_yes_no "-Modify Git config for this server" gitconfig
+printf "\n"
+
 # Ensuring all in the scripts folder are made executable
 chmod +x install-scripts/*
 
@@ -137,6 +145,14 @@ fi
 
 if [ "$neofetch" == "Y" ]; then
     execute_script "neofetch.sh"
+fi
+
+if [ "$staticip" == "Y" ]; then
+    execute_script "staticip.sh"
+fi
+
+if [ "$gitconfig" == "Y" ]; then
+    execute_script "gitconfig.sh"
 fi
 
 # Clean up
