@@ -141,6 +141,7 @@ chmod +x install-scripts/*
 if [ "$update" == "Y" ]; then
     execute_script "update.sh"
     execute_script "fonts.sh"
+    execute_script "hostname.sh"
 fi
 
 if [ "$zsh" == "Y" ]; then
