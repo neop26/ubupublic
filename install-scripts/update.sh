@@ -11,6 +11,8 @@ sudo apt-get install -y language-pack-en
 
 sudo apt install --reinstall software-properties-common -y
 
+sudo setcap cap_net_raw+ep /bin/ping
+
 # Install Neofetch
 sudo apt install neofetch -y
 
