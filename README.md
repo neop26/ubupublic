@@ -28,4 +28,4 @@ I use the script here to deploy the following for an Ubuntu Server:
 v1.0 - 06/05/24
 Tested to be working on
 - 23.10
-- 24.10
+- 24.04
