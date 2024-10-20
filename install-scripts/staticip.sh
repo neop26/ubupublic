@@ -3,7 +3,7 @@
 # Script to configure a static IP address on Ubuntu
 
 # Prompt for network interface, static IP, gateway, and DNS
-ip a -pretty
+ip a
 read -p "Enter the network interface name (e.g., eth0): " interface
 read -p "Enter the static IP address (e.g., 192.168.1.10/24): " static_ip
 read -p "Enter the gateway IP (e.g., 192.168.1.1): " gateway_ip
