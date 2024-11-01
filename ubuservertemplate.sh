@@ -131,6 +131,10 @@ ask_yes_no "-Setup Static IP for this server" staticip
 printf "\n"
 
 printf "\n"
+ask_yes_no "-Setup cockpit for browser mgmt" cockpit
+printf "\n"
+
+printf "\n"
 ask_yes_no "-Modify Git config for this server" gitconfig
 printf "\n"
 
@@ -164,12 +168,20 @@ if [ "$docker" == "Y" ]; then
     execute_script "docker.sh"
 fi
 
-if [ "$staticip" == "Y" ]; then
-    execute_script "staticip.sh"
+if [ "$cockpit" == "Y" ]; then
+    execute_script "cockpit.sh"
 fi
 
 if [ "$gitconfig" == "Y" ]; then
     execute_script "gitconfig.sh"
+fi
+
+if [ "$apache2" == "Y" ]; then
+    execute_script "apache2.sh"
+fi
+
+if [ "$staticip" == "Y" ]; then
+    execute_script "staticip.sh"
 fi
 
 # Clean up

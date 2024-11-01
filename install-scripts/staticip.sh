@@ -28,6 +28,6 @@ network:
 EOF
 
 # Apply the new netplan configuration
-sudo netplan apply
-
 echo "Static IP configuration has been applied."
+echo "This connection will drop , please reconnect using the new IP address"
+sudo netplan apply
