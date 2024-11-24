@@ -19,6 +19,9 @@ sudo apt install neofetch -y
 # Install Htop
 sudo apt install htop -y
 
+# Setting timezone to Auckland
+sudo timedatectl set-timezone Pacific/Auckland
+echo "Timezone set to Auckland"
 
 sudo apt install wget curl nano software-properties-common dirmngr apt-transport-https gnupg gnupg2 ca-certificates lsb-release ubuntu-keyring unzip -y 
 
