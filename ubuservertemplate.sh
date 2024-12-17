@@ -127,6 +127,10 @@ ask_yes_no "-Install Docker on this server" docker
 printf "\n"
 
 printf "\n"
+ask_yes_no "-Install Nvidia Drivers on this Host" nvidia
+printf "\n"
+
+printf "\n"
 ask_yes_no "-Setup Static IP for this server" staticip
 printf "\n"
 
@@ -182,6 +186,10 @@ fi
 
 if [ "$staticip" == "Y" ]; then
     execute_script "staticip.sh"
+fi
+
+if [ "$nvidia" == "Y" ]; then
+    execute_script "nvidiadrivers.sh"
 fi
 
 # Clean up
