@@ -35,5 +35,5 @@ cp -r 'assets/.zshrc' ~/
 #sed -i '/#pokemon-colorscripts --no-title -s -r/s/^#//' assets/.zshrc
 
 # Set zsh as the default shell
-echo "Changing default shell to zsh"
+echo "Changing default shell to zsh, so you will be prompted"
 chsh -s $(which zsh)
