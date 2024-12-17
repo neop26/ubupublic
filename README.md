@@ -25,6 +25,10 @@ I use the script here to deploy the following for an Ubuntu Server:
 
 # Changelog
 
+v1.1 - 18/12/24
+- Made some minor tweaks and improvements
+- Added Nvidia Driver installer to run GPU capability for Docker Containers
+
 v1.0 - 06/05/24
 Tested to be working on
 - 23.10
