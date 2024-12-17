@@ -25,14 +25,14 @@ fi
 # Copy .zshrc configuration
 cp -r 'assets/.zshrc' ~/
 
-# Install Pokemon color scripts
-if [ -d "pokemon-colorscripts" ]; then
-    cd pokemon-colorscripts && git pull && sudo ./install.sh && cd ..
-else
-    git clone https://github.com/Pokemon-color-scripts/pokemon-colorscripts.git
-    cd pokemon-colorscripts && sudo ./install.sh && cd ..
-fi
-sed -i '/#pokemon-colorscripts --no-title -s -r/s/^#//' assets/.zshrc
+## Install Pokemon color scripts
+#if [ -d "pokemon-colorscripts" ]; then
+#    cd pokemon-colorscripts && git pull && sudo ./install.sh && cd ..
+#else
+#    git clone https://github.com/Pokemon-color-scripts/pokemon-colorscripts.git
+#    cd pokemon-colorscripts && sudo ./install.sh && cd ..
+#fi
+#sed -i '/#pokemon-colorscripts --no-title -s -r/s/^#//' assets/.zshrc
 
 # Set zsh as the default shell
 chsh -s $(which zsh)
