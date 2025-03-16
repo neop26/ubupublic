@@ -16,6 +16,10 @@ sudo setcap cap_net_raw+ep /bin/ping
 # Install Neofetch
 sudo apt install neofetch -y
 
+# Install Disk Usage Analyzer
+sudo apt-get install ncdu -y
+
+
 # Install Htop
 sudo apt install htop -y
 
