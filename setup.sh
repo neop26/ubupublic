@@ -36,14 +36,14 @@ fi
 source "$SCRIPT_DIR/config.sh"
 
 # Check if Global_functions.sh exists
-if [ ! -f "$SCRIPTS_DIR/Global_functions.sh" ]; then
-    echo "Global functions file not found at: $SCRIPTS_DIR/Global_functions.sh"
+if [ ! -f "$SCRIPT_DIR/install-scripts/Global_functions.sh" ]; then
+    echo "Global functions file not found at: $SCRIPT_DIR/install-scripts/Global_functions.sh"
     echo "Please ensure the install-scripts directory exists and contains Global_functions.sh"
     exit 1
 fi
 
 # Source global functions
-source "$SCRIPTS_DIR/Global_functions.sh"
+source "$SCRIPT_DIR/install-scripts/Global_functions.sh"
 
 # Function to ask yes/no question (define this before using it)
 ask_yes_no() {
@@ -97,21 +97,21 @@ mkdir -p "$ASSETS_DIR"
 
 # Define available modules
 MODULES=(
-    "system_update:Update system packages"
+    "update:Update system packages"
     "zsh:Install ZSH with Oh-My-ZSH"
-    "network_tools:Install network diagnostic tools"
+    "nettools:Install network diagnostic tools"
     "fonts:Install recommended fonts"
     "neofetch:Install and configure Neofetch"
-    "azure_dev:Setup Azure development environment"
+    "azuredev:Setup Azure development environment"
     "docker:Install Docker and Docker Compose"
-    "nvidia_drivers:Install NVIDIA drivers"
-    "static_ip:Configure static IP address"
+    "nvidiadrivers:Install NVIDIA drivers"
+    "staticip:Configure static IP address"
     "cockpit:Setup Cockpit web console"
-    "git_config:Configure Git settings"
-    "node_js:Install Node.js and npm"
-    "apache:Install Apache web server"
-    "create_user:Create a new user account"
-    "powershell:Install PowerShell"
+    "gitconfig:Configure Git settings"
+    "nodejsinstaller:Install Node.js and npm"
+    "apache2:Install Apache web server"
+    "createuser:Create a new user account"
+    "installpwsh:Install PowerShell"
 )
 
 # Function to display a selection menu
@@ -134,24 +134,27 @@ display_menu() {
     echo "============================================================"
     
     while true; do
-        read -p "Enter your selection (separate multiple choices with space): " -a choices
+        read -p "Enter your selection (separate multiple choices with space): " choices_input
+        
+        # Split input into array
+        IFS=' ' read -ra choices <<< "$choices_input"
         
         # Check if choices contains "A" (Select All)
-        if [[ " ${choices[*]} " == *" A "* ]]; then
+        if [[ " ${choices[*]} " == *" A "* ]] || [[ " ${choices[*]} " == *" a "* ]]; then
             selected=("${!options[@]}")
             echo -e "${NOTE} All options selected!"
             break
         fi
         
         # Check if choices contains "N" (Select None)
-        if [[ " ${choices[*]} " == *" N "* ]]; then
+        if [[ " ${choices[*]} " == *" N "* ]] || [[ " ${choices[*]} " == *" n "* ]]; then
             selected=()
             echo -e "${NOTE} No options selected."
             break
         fi
         
         # Check if choices contains "D" (Done)
-        if [[ " ${choices[*]} " == *" D "* ]]; then
+        if [[ " ${choices[*]} " == *" D "* ]] || [[ " ${choices[*]} " == *" d "* ]]; then
             break
         fi
         
@@ -167,7 +170,9 @@ display_menu() {
     done
     
     # Return the selected indices
-    echo "${selected[@]}"
+    for index in "${selected[@]}"; do
+        echo "$index"
+    done
 }
 
 # Display module menu
@@ -180,12 +185,15 @@ for module in "${MODULES[@]}"; do
 done
 
 # Get selected modules
-SELECTED_INDICES=$(display_menu "Available Modules" "${MODULE_DESCRIPTIONS[@]}")
+selected_indices=($(display_menu "Available Modules" "${MODULE_DESCRIPTIONS[@]}"))
+
+# Debug output
+echo "Debug: Selected indices: ${selected_indices[*]}"
 
 # Prepare for execution
-if [ -n "$SELECTED_INDICES" ]; then
+if [ ${#selected_indices[@]} -gt 0 ]; then
     echo -e "${NOTE} Ready to install the following components:"
-    for index in $SELECTED_INDICES; do
+    for index in "${selected_indices[@]}"; do
         module_name="${MODULES[$index]%%:*}"
         module_desc="${MODULES[$index]#*:}"
         echo -e "  - $module_desc"
@@ -194,12 +202,12 @@ if [ -n "$SELECTED_INDICES" ]; then
     # Confirm installation
     if ask_yes_no "Do you want to proceed with installation?" "y"; then
         # Execute selected modules
-        for index in $SELECTED_INDICES; do
+        for index in "${selected_indices[@]}"; do
             module_name="${MODULES[$index]%%:*}"
             module_desc="${MODULES[$index]#*:}"
             
             echo -e "\n${ACTION} Installing: $module_desc"
-            script_path="$SCRIPTS_DIR/${module_name//_/}.sh"
+            script_path="$SCRIPTS_DIR/${module_name}.sh"
             
             # Check if script exists and is executable
             if [ -f "$script_path" ]; then
@@ -210,6 +218,8 @@ if [ -n "$SELECTED_INDICES" ]; then
                 "$script_path" || echo -e "${ERROR} Failed to execute: $script_path"
             else
                 echo -e "${WARN} Script not found: $script_path"
+                echo "Looked for: $script_path"
+                ls -la "$SCRIPTS_DIR"
             fi
         done
         

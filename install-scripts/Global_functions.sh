@@ -1,8 +1,8 @@
 #!/bin/bash
 # 💫 Enhanced Global Functions for Scripts 💫
 
-# Ensure the script doesn't proceed if there's an error
-set -e
+# Handle possible errors in a safe way
+set -o pipefail
 
 # Source the configuration file if it exists
 CONFIG_FILE="$(dirname "$(dirname "$(readlink -f "$0")")")/config.sh"
@@ -15,11 +15,30 @@ else
 #!/bin/bash
 # Default configuration
 
-# Create Directory for Install Logs
+# Script version
+VERSION="2.0.0"
+
+# Default timezone
+DEFAULT_TIMEZONE="UTC"
+
+# Default package groups
+ESSENTIAL_PACKAGES=(
+  curl
+  wget
+  git
+  nano
+)
+
+# Default installation directories
+CONFIG_DIR="$HOME/.config"
+SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")/install-scripts"
+ASSETS_DIR="$(dirname "$(readlink -f "$0")")/assets"
 LOGS_DIR="$(dirname "$(readlink -f "$0")")/Install-Logs"
+
+# Create logs directory if not exists
 mkdir -p "$LOGS_DIR"
 
-# Set some colors for output messages
+# Color definitions
 OK="$(tput setaf 2)[OK]$(tput sgr0)"
 ERROR="$(tput setaf 1)[ERROR]$(tput sgr0)"
 NOTE="$(tput setaf 3)[NOTE]$(tput sgr0)"
@@ -37,8 +56,8 @@ handle_error() {
   exit 1
 }
 
-# Set up error handling
-trap 'handle_error $LINENO' ERR
+# Set up error handling (but don't exit on all errors, to allow the script to continue)
+# trap 'handle_error $LINENO' ERR
 
 # Create logs directory
 mkdir -p "$LOGS_DIR"
@@ -46,15 +65,6 @@ mkdir -p "$LOGS_DIR"
 # Set current log file
 LOG="$LOGS_DIR/install-$(date +%Y%m%d-%H%M%S).log"
 touch "$LOG"
-
-# Check for required commands
-for cmd in apt-get dpkg wget curl sudo; do
-  if ! command -v "$cmd" &> /dev/null; then
-    echo -e "${ERROR} Required command not found: $cmd"
-    echo "Please install the missing command and try again."
-    exit 1
-  fi
-done
 
 # Function to ask yes/no question
 ask_yes_no() {
@@ -83,12 +93,12 @@ ask_yes_no() {
 show_progress() {
   local duration=$1
   local steps=20
-  local sleep_duration=$(bc <<< "scale=3; $duration / $steps")
+  local sleep_duration=$(echo "scale=3; $duration / $steps" | bc 2>/dev/null || echo "0.1")
   
   echo -n "["
   for ((i=0; i<steps; i++)); do
     echo -n "#"
-    sleep "$sleep_duration"
+    sleep "$sleep_duration" 2>/dev/null || sleep 0.1
   done
   echo "] Done!"
 }
@@ -134,17 +144,24 @@ install_package() {
     wait $pid
     if [ $? -eq 0 ]; then
       echo -e "\r${OK} $package was installed successfully."
+      return 0
     else
       echo -e "\r${ERROR} $package failed to install. Check the log: $LOG"
       return 1
     fi
   fi
+  return 0
 }
 
 # Function for installing multiple packages
 install_packages() {
   local packages=("$@")
   local failed=()
+  
+  if [ ${#packages[@]} -eq 0 ]; then
+    echo -e "${WARN} No packages specified for installation."
+    return 0
+  fi
   
   for package in "${packages[@]}"; do
     if ! install_package "$package"; then
@@ -154,6 +171,7 @@ install_packages() {
   
   if [ ${#failed[@]} -eq 0 ]; then
     echo -e "${OK} All packages installed successfully."
+    return 0
   else
     echo -e "${WARN} The following packages failed to install: ${failed[*]}"
     return 1
@@ -333,4 +351,10 @@ download_file() {
     echo -e "${ERROR} Failed to download $output"
     return 1
   fi
+}
+
+# Add simpler debugging function
+debug_message() {
+  local message="$1"
+  echo -e "${NOTE} DEBUG: $message"
 }
