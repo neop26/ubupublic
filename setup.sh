@@ -114,61 +114,50 @@ ask_yes_no() {
     done
 }
 
-# Function to get user selection
-select_modules() {
-    local selected_indices=()
-    local options=("$@")
-    
-    # Display the menu
-    echo -e "\n${ACTION} Available Modules"
-    echo "============================================================"
-    
-    for i in "${!options[@]}"; do
-        echo "[$((i+1))] ${options[$i]}"
-    done
-    echo "[A] Select All"
-    echo "[N] Select None"
-    echo "[D] Done"
-    echo "============================================================"
-    
-    # Get user input
-    read -p "Enter your selection (separate multiple choices with space): " choices_input
-    
-    # Process the input
-    if [[ "$choices_input" == *"A"* ]] || [[ "$choices_input" == *"a"* ]]; then
-        # Select all options
-        for i in "${!options[@]}"; do
-            selected_indices+=("$i")
-        done
-        echo -e "${NOTE} All options selected!"
-    elif [[ "$choices_input" == *"N"* ]] || [[ "$choices_input" == *"n"* ]]; then
-        # Select none
-        echo -e "${NOTE} No options selected."
-    elif [[ "$choices_input" == *"D"* ]] || [[ "$choices_input" == *"d"* ]]; then
-        # Done with current selection
-        :
-    else
-        # Process individual selections
-        for choice in $choices_input; do
-            if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#options[@]}" ]; then
-                selected_indices+=($((choice-1)))
-            fi
-        done
-    fi
-    
-    # Return the selected indices
-    echo "${selected_indices[@]}"
-}
-
-# Extract descriptions for display
-MODULE_DESCRIPTIONS=()
-for module in "${MODULES[@]}"; do
-    MODULE_DESCRIPTIONS+=("${module#*:}")
-done
-
-# Display module menu and get user selection
+# Display module menu
 echo -e "${NOTE} Please select which components you want to install:"
-selected_indices=($(select_modules "${MODULE_DESCRIPTIONS[@]}"))
+
+# Display menu and get selection
+echo -e "\n${ACTION} Available Modules"
+echo "============================================================"
+
+# Display module options
+for i in "${!MODULES[@]}"; do
+    module_desc="${MODULES[$i]#*:}"
+    echo "[$((i+1))] $module_desc"
+done
+echo "[A] Select All"
+echo "[N] Select None"
+echo "[D] Done (proceed with selection)"
+echo "============================================================"
+
+# Get user selection
+read -p "Enter your selection (separate multiple choices with space): " choices_input
+
+# Process selected modules
+selected_indices=()
+
+# Check for special options
+if [[ "$choices_input" == *"A"* ]] || [[ "$choices_input" == *"a"* ]]; then
+    # Select all modules
+    for i in "${!MODULES[@]}"; do
+        selected_indices+=($i)
+    done
+    echo -e "${NOTE} All options selected!"
+elif [[ "$choices_input" == *"N"* ]] || [[ "$choices_input" == *"n"* ]]; then
+    # Select none
+    echo -e "${NOTE} No options selected."
+elif [[ "$choices_input" == *"D"* ]] || [[ "$choices_input" == *"d"* ]]; then
+    # Done with selection - use whatever is already selected
+    :
+else
+    # Process individual selections
+    for choice in $choices_input; do
+        if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#MODULES[@]}" ]; then
+            selected_indices+=($((choice-1)))
+        fi
+    done
+fi
 
 # Prepare for execution
 if [ ${#selected_indices[@]} -gt 0 ]; then
