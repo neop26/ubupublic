@@ -118,39 +118,62 @@ check_command() {
 # Function for installing packages with progress tracking
 install_package() {
   local package="$1"
+  local timeout=300  # 5-minute timeout for package installation
+  
   # Checking if package is already installed
   if dpkg -l 2>/dev/null | grep -q -w "^ii  $package" ; then
     echo -e "${OK} $package is already installed. Skipping..."
-  else
-    # Package not installed
-    echo -e "${NOTE} Installing $package ..."
-    
-    # Start installation with output redirection to log
-    sudo apt-get install -y "$package" >> "$LOG" 2>&1 &
-    
-    # Get PID of the last background process
-    local pid=$!
-    
-    # Show spinner while waiting for installation
-    local spin=('-' '\' '|' '/')
-    local i=0
-    while kill -0 $pid 2>/dev/null; do
-      echo -ne "\r[ ${spin[$i]} ] Installing..."
-      i=$(( (i+1) % 4 ))
-      sleep 0.5
-    done
-    
-    # Check if installation was successful
-    wait $pid
-    if [ $? -eq 0 ]; then
-      echo -e "\r${OK} $package was installed successfully."
-      return 0
-    else
-      echo -e "\r${ERROR} $package failed to install. Check the log: $LOG"
-      return 1
-    fi
+    return 0
   fi
-  return 0
+  
+  # Package not installed
+  echo -e "${NOTE} Installing $package ..."
+  
+  # Create a temporary file to track progress
+  local tmp_file=$(mktemp)
+  
+  # Start installation in background with output redirection
+  (sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$package" >> "$LOG" 2>&1; echo $? > "$tmp_file") &
+  
+  # Get PID of the last background process
+  local pid=$!
+  
+  # Show spinner with timeout
+  local spin=('-' '\' '|' '/')
+  local i=0
+  local elapsed=0
+  local interval=0.5
+  
+  while kill -0 $pid 2>/dev/null && [ $elapsed -lt $timeout ]; do
+    echo -ne "\r[ ${spin[$i]} ] Installing... (${elapsed}s)"
+    i=$(( (i+1) % 4 ))
+    sleep $interval
+    elapsed=$(echo "$elapsed + $interval" | bc)
+  done
+  
+  # Check if process is still running after timeout
+  if kill -0 $pid 2>/dev/null; then
+    echo -e "\r${WARN} Installation of $package is taking too long, killing process..."
+    sudo kill -TERM $pid 2>/dev/null || sudo kill -KILL $pid 2>/dev/null
+    echo -e "${ERROR} Installation of $package failed due to timeout."
+    rm -f "$tmp_file"
+    return 1
+  fi
+  
+  # Check installation status
+  local status=1
+  if [ -f "$tmp_file" ]; then
+    status=$(cat "$tmp_file")
+    rm -f "$tmp_file"
+  fi
+  
+  if [ "$status" -eq 0 ]; then
+    echo -e "\r${OK} $package was installed successfully.        "
+    return 0
+  else
+    echo -e "\r${ERROR} $package failed to install. Check the log: $LOG"
+    return 1
+  fi
 }
 
 # Function for installing multiple packages

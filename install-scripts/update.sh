@@ -38,9 +38,13 @@ sudo apt autoremove -y >> "$LOG" 2>&1
 sudo apt autoclean -y >> "$LOG" 2>&1
 check_command
 
-# Install system monitors
+# Install system monitors one by one with error handling
 echo -e "${NOTE} Installing system monitoring tools..."
-install_packages htop ncdu neofetch
+for tool in htop ncdu neofetch; do
+  if ! install_package "$tool"; then
+    echo -e "${WARN} Failed to install $tool, continuing with other packages..."
+  fi
+done
 
 echo -e "${OK} System update completed successfully!"
 echo -e "${NOTE} Log saved to: $LOG"
