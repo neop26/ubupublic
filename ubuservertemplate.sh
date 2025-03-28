@@ -147,50 +147,66 @@ chmod +x install-scripts/*
 
 
 if [ "$update" == "Y" ]; then
+    echo -e "\n${NOTE} Updating system..."
     execute_script "update.sh"
+    echo -e "\n${NOTE} Installing fonts..."
     execute_script "fonts.sh"
+    echo -e "\n${NOTE} Configuring hostname..."
     execute_script "hostname.sh"
 fi
 
 if [ "$zsh" == "Y" ]; then
+    echo -e "\n${NOTE} Installing ZSH and Oh-My-ZSH..."
     execute_script "zsh.sh"
 fi
 
 if [ "$nettools" == "Y" ]; then
+    echo -e "\n${NOTE} Installing network tools..."
     execute_script "nettools.sh"
 fi
 
 if [ "$neofetch" == "Y" ]; then
+    echo -e "\n${NOTE} Installing Neofetch..."
     execute_script "neofetch.sh"
 fi
 
 if [ "$azdev" == "Y" ]; then
+    echo -e "\n${NOTE} Setting up Azure development environment..."
     execute_script "azuredev.sh"
+    echo -e "\n${NOTE} Installing PowerShell..."
+    execute_script "installpwsh.sh"
 fi
 
 if [ "$docker" == "Y" ]; then
+    echo -e "\n${NOTE} Installing Docker..."
     execute_script "docker.sh"
 fi
 
 if [ "$cockpit" == "Y" ]; then
+    echo -e "\n${NOTE} Setting up Cockpit for browser management..."
     execute_script "cockpit.sh"
 fi
 
 if [ "$gitconfig" == "Y" ]; then
+    echo -e "\n${NOTE} Configuring Git..."
     execute_script "gitconfig.sh"
 fi
 
 if [ "$apache2" == "Y" ]; then
+    echo -e "\n${NOTE} Installing Apache2 web server..."
     execute_script "apache2.sh"
 fi
 
 if [ "$staticip" == "Y" ]; then
+    echo -e "\n${NOTE} Configuring static IP address..."
     execute_script "staticip.sh"
 fi
 
 if [ "$nvidia" == "Y" ]; then
+    echo -e "\n${NOTE} Installing NVIDIA drivers..."
     execute_script "nvidiadrivers.sh"
 fi
+
 
 # Clean up
 printf "\n${OK} performing some clean up.\n"
