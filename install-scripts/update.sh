@@ -1,35 +1,54 @@
-# Bash script to Update the system
-
 #!/bin/bash
+# Enhanced system update script
 
-# Update the package list
-sudo apt update
+# Source the global functions
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+source "$SCRIPT_DIR/Global_functions.sh"
 
-sudo apt install curl -y
+echo -e "${NOTE} Starting system update process..."
 
-sudo apt-get install -y language-pack-en
+# Check system requirements
+check_system_requirements
 
-sudo apt install --reinstall software-properties-common -y
+# Create a detailed log header
+{
+  echo "===================================================="
+  echo "System Update Log - $(date)"
+  echo "System: $(lsb_release -ds)"
+  echo "Kernel: $(uname -r)"
+  echo "===================================================="
+} >> "$LOG"
 
-sudo setcap cap_net_raw+ep /bin/ping
+echo -e "${NOTE} Updating package lists..."
+sudo apt update >> "$LOG" 2>&1
+check_command
 
-# Install Neofetch
-sudo apt install neofetch -y
+echo -e "${NOTE} Installing essential packages..."
+install_packages "${ESSENTIAL_PACKAGES[@]}"
 
-# Install Disk Usage Analyzer
-sudo apt-get install ncdu -y
+echo -e "${NOTE} Setting timezone to ${DEFAULT_TIMEZONE}..."
+set_timezone "${DEFAULT_TIMEZONE}"
 
+echo -e "${NOTE} Upgrading packages..."
+sudo apt upgrade -y >> "$LOG" 2>&1
+check_command
 
-# Install Htop
-sudo apt install htop -y
+echo -e "${NOTE} Cleaning up unnecessary packages..."
+sudo apt autoremove -y >> "$LOG" 2>&1
+sudo apt autoclean -y >> "$LOG" 2>&1
+check_command
 
-# Setting timezone to Auckland
-sudo timedatectl set-timezone Pacific/Auckland
-echo "Timezone set to Auckland"
+# Install system monitors
+echo -e "${NOTE} Installing system monitoring tools..."
+install_packages htop ncdu neofetch
 
-sudo apt install wget curl nano software-properties-common dirmngr apt-transport-https gnupg gnupg2 ca-certificates lsb-release ubuntu-keyring unzip -y 
+echo -e "${OK} System update completed successfully!"
+echo -e "${NOTE} Log saved to: $LOG"
 
-echo "System updated successfully"
-wait 2
-
-clear
+# Show summary information
+echo -e "\n${ACTION} System Update Summary:"
+echo -e "${NOTE} Date: $(date)"
+echo -e "${NOTE} System: $(lsb_release -ds)"
+echo -e "${NOTE} Kernel: $(uname -r)"
+echo -e "${NOTE} Available disk space: $(df -h / | awk 'NR==2 {print $4}')"
+echo -e "${NOTE} Memory: $(free -h | awk 'NR==2 {print $4}') available out of $(free -h | awk 'NR==2 {print $2}')"
