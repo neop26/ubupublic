@@ -45,29 +45,6 @@ fi
 # Source global functions
 source "$SCRIPT_DIR/install-scripts/Global_functions.sh"
 
-# Function to ask yes/no question (define this before using it)
-ask_yes_no() {
-    local prompt="$1"
-    local default="${2:-n}"
-    
-    if [ "$default" = "y" ]; then
-        prompt="$prompt [Y/n]"
-    else
-        prompt="$prompt [y/N]"
-    fi
-    
-    while true; do
-        read -p "$prompt " choice
-        choice=${choice:-$default}
-        
-        case "$choice" in
-            [Yy]* ) return 0;;
-            [Nn]* ) return 1;;
-            * ) echo "Please answer yes or no.";;
-        esac
-    done
-}
-
 # Clear the screen and show welcome message
 clear
 cat << "EOF"
@@ -114,15 +91,36 @@ MODULES=(
     "installpwsh:Install PowerShell"
 )
 
-# Function to display a selection menu
-display_menu() {
-    local title="$1"
-    shift
-    local options=("$@")
-    local selected=()
-    local choice
+# Function to ask yes/no question (define this before using it)
+ask_yes_no() {
+    local prompt="$1"
+    local default="${2:-n}"
     
-    echo -e "\n${ACTION} $title"
+    if [ "$default" = "y" ]; then
+        prompt="$prompt [Y/n]"
+    else
+        prompt="$prompt [y/N]"
+    fi
+    
+    while true; do
+        read -p "$prompt " choice
+        choice=${choice:-$default}
+        
+        case "$choice" in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+# Function to get user selection
+select_modules() {
+    local selected_indices=()
+    local options=("$@")
+    
+    # Display the menu
+    echo -e "\n${ACTION} Available Modules"
     echo "============================================================"
     
     for i in "${!options[@]}"; do
@@ -133,50 +131,34 @@ display_menu() {
     echo "[D] Done"
     echo "============================================================"
     
-    while true; do
-        read -p "Enter your selection (separate multiple choices with space): " choices_input
-        
-        # Split input into array
-        IFS=' ' read -ra choices <<< "$choices_input"
-        
-        # Check if choices contains "A" (Select All)
-        if [[ " ${choices[*]} " == *" A "* ]] || [[ " ${choices[*]} " == *" a "* ]]; then
-            selected=("${!options[@]}")
-            echo -e "${NOTE} All options selected!"
-            break
-        fi
-        
-        # Check if choices contains "N" (Select None)
-        if [[ " ${choices[*]} " == *" N "* ]] || [[ " ${choices[*]} " == *" n "* ]]; then
-            selected=()
-            echo -e "${NOTE} No options selected."
-            break
-        fi
-        
-        # Check if choices contains "D" (Done)
-        if [[ " ${choices[*]} " == *" D "* ]] || [[ " ${choices[*]} " == *" d "* ]]; then
-            break
-        fi
-        
-        # Process numeric selections
-        for choice in "${choices[@]}"; do
+    # Get user input
+    read -p "Enter your selection (separate multiple choices with space): " choices_input
+    
+    # Process the input
+    if [[ "$choices_input" == *"A"* ]] || [[ "$choices_input" == *"a"* ]]; then
+        # Select all options
+        for i in "${!options[@]}"; do
+            selected_indices+=("$i")
+        done
+        echo -e "${NOTE} All options selected!"
+    elif [[ "$choices_input" == *"N"* ]] || [[ "$choices_input" == *"n"* ]]; then
+        # Select none
+        echo -e "${NOTE} No options selected."
+    elif [[ "$choices_input" == *"D"* ]] || [[ "$choices_input" == *"d"* ]]; then
+        # Done with current selection
+        :
+    else
+        # Process individual selections
+        for choice in $choices_input; do
             if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#options[@]}" ]; then
-                # Convert to zero-based index
-                selected+=($((choice-1)))
+                selected_indices+=($((choice-1)))
             fi
         done
-        
-        break
-    done
+    fi
     
     # Return the selected indices
-    for index in "${selected[@]}"; do
-        echo "$index"
-    done
+    echo "${selected_indices[@]}"
 }
-
-# Display module menu
-echo -e "${NOTE} Please select which components you want to install:"
 
 # Extract descriptions for display
 MODULE_DESCRIPTIONS=()
@@ -184,11 +166,9 @@ for module in "${MODULES[@]}"; do
     MODULE_DESCRIPTIONS+=("${module#*:}")
 done
 
-# Get selected modules
-selected_indices=($(display_menu "Available Modules" "${MODULE_DESCRIPTIONS[@]}"))
-
-# Debug output
-echo "Debug: Selected indices: ${selected_indices[*]}"
+# Display module menu and get user selection
+echo -e "${NOTE} Please select which components you want to install:"
+selected_indices=($(select_modules "${MODULE_DESCRIPTIONS[@]}"))
 
 # Prepare for execution
 if [ ${#selected_indices[@]} -gt 0 ]; then
