@@ -1,6 +1,9 @@
 #!/bin/bash
 # 💫 Enhanced Global Functions for Scripts 💫
 
+# Ensure the script doesn't proceed if there's an error
+set -e
+
 # Source the configuration file if it exists
 CONFIG_FILE="$(dirname "$(dirname "$(readlink -f "$0")")")/config.sh"
 if [ -f "$CONFIG_FILE" ]; then
@@ -27,12 +30,54 @@ EOL
   source "$CONFIG_FILE"
 fi
 
+# Function to handle errors
+handle_error() {
+  echo -e "${ERROR} An error occurred on line $1"
+  echo "Please check the logs for more information."
+  exit 1
+}
+
+# Set up error handling
+trap 'handle_error $LINENO' ERR
+
 # Create logs directory
 mkdir -p "$LOGS_DIR"
 
 # Set current log file
 LOG="$LOGS_DIR/install-$(date +%Y%m%d-%H%M%S).log"
 touch "$LOG"
+
+# Check for required commands
+for cmd in apt-get dpkg wget curl sudo; do
+  if ! command -v "$cmd" &> /dev/null; then
+    echo -e "${ERROR} Required command not found: $cmd"
+    echo "Please install the missing command and try again."
+    exit 1
+  fi
+done
+
+# Function to ask yes/no question
+ask_yes_no() {
+    local prompt="$1"
+    local default="${2:-n}"
+    
+    if [ "$default" = "y" ]; then
+        prompt="$prompt [Y/n]"
+    else
+        prompt="$prompt [y/N]"
+    fi
+    
+    while true; do
+        read -p "$prompt " choice
+        choice=${choice:-$default}
+        
+        case "$choice" in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
 
 # Function for displaying progress bar
 show_progress() {
@@ -50,10 +95,12 @@ show_progress() {
 
 # Function for checking command status
 check_command() {
-  if [ $? -eq 0 ]; then
+  local status=$?
+  if [ $status -eq 0 ]; then
     echo -e "${OK} Command executed successfully"
+    return 0
   else
-    echo -e "${ERROR} Command failed with exit code $?"
+    echo -e "${ERROR} Command failed with exit code $status"
     return 1
   fi
 }
@@ -62,7 +109,7 @@ check_command() {
 install_package() {
   local package="$1"
   # Checking if package is already installed
-  if dpkg -l | grep -q -w "^ii  $package" ; then
+  if dpkg -l 2>/dev/null | grep -q -w "^ii  $package" ; then
     echo -e "${OK} $package is already installed. Skipping..."
   else
     # Package not installed

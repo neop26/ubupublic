@@ -2,10 +2,71 @@
 # Advanced Ubuntu Setup Builder
 # A modular, powerful and intuitive setup builder
 
+# Ensure the script doesn't proceed if there's an error
+set -e
+
 # Source the configuration and global functions
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+# Check if config.sh exists, otherwise create it
+if [ ! -f "$SCRIPT_DIR/config.sh" ]; then
+    echo "Configuration file not found. Creating default configuration..."
+    mkdir -p "$SCRIPT_DIR"
+    cat > "$SCRIPT_DIR/config.sh" << 'EOL'
+#!/bin/bash
+# Default configuration
+VERSION="2.0.0"
+DEFAULT_TIMEZONE="UTC"
+ESSENTIAL_PACKAGES=(curl wget git nano)
+LOGS_DIR="$(dirname "$(readlink -f "$0")")/Install-Logs"
+mkdir -p "$LOGS_DIR"
+CONFIG_DIR="$HOME/.config"
+SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")/install-scripts"
+ASSETS_DIR="$(dirname "$(readlink -f "$0")")/assets"
+OK="$(tput setaf 2)[OK]$(tput sgr0)"
+ERROR="$(tput setaf 1)[ERROR]$(tput sgr0)"
+NOTE="$(tput setaf 3)[NOTE]$(tput sgr0)"
+WARN="$(tput setaf 166)[WARN]$(tput sgr0)"
+ACTION="$(tput setaf 6)[ACTION]$(tput sgr0)"
+RESET="$(tput sgr0)"
+EOL
+fi
+
+# Source configuration
 source "$SCRIPT_DIR/config.sh"
-source "$SCRIPT_DIR/install-scripts/Global_functions.sh"
+
+# Check if Global_functions.sh exists
+if [ ! -f "$SCRIPTS_DIR/Global_functions.sh" ]; then
+    echo "Global functions file not found at: $SCRIPTS_DIR/Global_functions.sh"
+    echo "Please ensure the install-scripts directory exists and contains Global_functions.sh"
+    exit 1
+fi
+
+# Source global functions
+source "$SCRIPTS_DIR/Global_functions.sh"
+
+# Function to ask yes/no question (define this before using it)
+ask_yes_no() {
+    local prompt="$1"
+    local default="${2:-n}"
+    
+    if [ "$default" = "y" ]; then
+        prompt="$prompt [Y/n]"
+    else
+        prompt="$prompt [y/N]"
+    fi
+    
+    while true; do
+        read -p "$prompt " choice
+        choice=${choice:-$default}
+        
+        case "$choice" in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
 
 # Clear the screen and show welcome message
 clear
@@ -30,7 +91,9 @@ if [[ $EUID -eq 0 ]]; then
 fi
 
 # Create needed directories
-create_directory "$LOGS_DIR"
+mkdir -p "$LOGS_DIR"
+mkdir -p "$SCRIPTS_DIR"
+mkdir -p "$ASSETS_DIR"
 
 # Define available modules
 MODULES=(
@@ -107,29 +170,6 @@ display_menu() {
     echo "${selected[@]}"
 }
 
-# Function to ask yes/no question
-ask_yes_no() {
-    local prompt="$1"
-    local default="${2:-n}"
-    
-    if [ "$default" = "y" ]; then
-        prompt="$prompt [Y/n]"
-    else
-        prompt="$prompt [y/N]"
-    fi
-    
-    while true; do
-        read -p "$prompt " choice
-        choice=${choice:-$default}
-        
-        case "$choice" in
-            [Yy]* ) return 0;;
-            [Nn]* ) return 1;;
-            * ) echo "Please answer yes or no.";;
-        esac
-    done
-}
-
 # Display module menu
 echo -e "${NOTE} Please select which components you want to install:"
 
@@ -159,57 +199,18 @@ if [ -n "$SELECTED_INDICES" ]; then
             module_desc="${MODULES[$index]#*:}"
             
             echo -e "\n${ACTION} Installing: $module_desc"
+            script_path="$SCRIPTS_DIR/${module_name//_/}.sh"
             
-            case "$module_name" in
-                system_update)
-                    "$SCRIPTS_DIR/update.sh"
-                    ;;
-                zsh)
-                    "$SCRIPTS_DIR/zsh.sh"
-                    ;;
-                network_tools)
-                    "$SCRIPTS_DIR/nettools.sh"
-                    ;;
-                fonts)
-                    "$SCRIPTS_DIR/fonts.sh"
-                    ;;
-                neofetch)
-                    "$SCRIPTS_DIR/neofetch.sh"
-                    ;;
-                azure_dev)
-                    "$SCRIPTS_DIR/azuredev.sh"
-                    ;;
-                docker)
-                    "$SCRIPTS_DIR/docker.sh"
-                    ;;
-                nvidia_drivers)
-                    "$SCRIPTS_DIR/nvidiadrivers.sh"
-                    ;;
-                static_ip)
-                    "$SCRIPTS_DIR/staticip.sh"
-                    ;;
-                cockpit)
-                    "$SCRIPTS_DIR/cockpit.sh"
-                    ;;
-                git_config)
-                    "$SCRIPTS_DIR/gitconfig.sh"
-                    ;;
-                node_js)
-                    "$SCRIPTS_DIR/nodejsinstaller.sh"
-                    ;;
-                apache)
-                    "$SCRIPTS_DIR/apache2.sh"
-                    ;;
-                create_user)
-                    "$SCRIPTS_DIR/createuser.sh"
-                    ;;
-                powershell)
-                    "$SCRIPTS_DIR/installpwsh.sh"
-                    ;;
-                *)
-                    echo -e "${WARN} Unknown module: $module_name"
-                    ;;
-            esac
+            # Check if script exists and is executable
+            if [ -f "$script_path" ]; then
+                # Make sure script is executable
+                chmod +x "$script_path"
+                
+                # Execute the script
+                "$script_path" || echo -e "${ERROR} Failed to execute: $script_path"
+            else
+                echo -e "${WARN} Script not found: $script_path"
+            fi
         done
         
         # Clean up
@@ -221,17 +222,17 @@ if [ -n "$SELECTED_INDICES" ]; then
         echo -e "\n${OK} Setup completed successfully!"
         
         # Show system information
-        if command_exists neofetch; then
+        if command -v neofetch &> /dev/null; then
             neofetch
         else
             echo -e "\n${NOTE} System Information:"
             echo "Hostname: $(hostname)"
-            echo "Distribution: $(lsb_release -ds)"
+            echo "Distribution: $(lsb_release -ds 2>/dev/null || echo 'Unknown')"
             echo "Kernel: $(uname -r)"
             echo "Architecture: $(uname -m)"
-            echo "CPU: $(grep "model name" /proc/cpuinfo | head -n1 | cut -d: -f2 | sed 's/^ *//')"
-            echo "Memory: $(free -h | awk '/Mem:/ {print $2}')"
-            echo "Disk Space: $(df -h / | awk 'NR==2 {print $2}')"
+            echo "CPU: $(grep -m 1 "model name" /proc/cpuinfo 2>/dev/null | cut -d: -f2 | sed 's/^ *//' || echo 'Unknown')"
+            echo "Memory: $(free -h 2>/dev/null | awk '/Mem:/ {print $2}' || echo 'Unknown')"
+            echo "Disk Space: $(df -h / 2>/dev/null | awk 'NR==2 {print $2}' || echo 'Unknown')"
         fi
     else
         echo -e "${NOTE} Installation canceled."
