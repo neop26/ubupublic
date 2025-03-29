@@ -129,49 +129,15 @@ install_package() {
   # Package not installed
   echo -e "${NOTE} Installing $package ..."
   
-  # Create a temporary file to track progress
-  local tmp_file=$(mktemp)
+  # Start installation without a background process - more reliable
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$package" >> "$LOG" 2>&1
+  local status=$?
   
-  # Start installation in background with output redirection
-  (sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$package" >> "$LOG" 2>&1; echo $? > "$tmp_file") &
-  
-  # Get PID of the last background process
-  local pid=$!
-  
-  # Show spinner with timeout
-  local spin=('-' '\' '|' '/')
-  local i=0
-  local elapsed=0
-  local interval=0.5
-  
-  while kill -0 $pid 2>/dev/null && [ $elapsed -lt $timeout ]; do
-    echo -ne "\r[ ${spin[$i]} ] Installing... (${elapsed}s)"
-    i=$(( (i+1) % 4 ))
-    sleep $interval
-    elapsed=$(echo "$elapsed + $interval" | bc)
-  done
-  
-  # Check if process is still running after timeout
-  if kill -0 $pid 2>/dev/null; then
-    echo -e "\r${WARN} Installation of $package is taking too long, killing process..."
-    sudo kill -TERM $pid 2>/dev/null || sudo kill -KILL $pid 2>/dev/null
-    echo -e "${ERROR} Installation of $package failed due to timeout."
-    rm -f "$tmp_file"
-    return 1
-  fi
-  
-  # Check installation status
-  local status=1
-  if [ -f "$tmp_file" ]; then
-    status=$(cat "$tmp_file")
-    rm -f "$tmp_file"
-  fi
-  
-  if [ "$status" -eq 0 ]; then
-    echo -e "\r${OK} $package was installed successfully.        "
+  if [ $status -eq 0 ]; then
+    echo -e "${OK} $package was installed successfully."
     return 0
   else
-    echo -e "\r${ERROR} $package failed to install. Check the log: $LOG"
+    echo -e "${ERROR} $package failed to install. Check the log: $LOG"
     return 1
   fi
 }

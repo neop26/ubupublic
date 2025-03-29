@@ -1,61 +1,89 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
-# Fonts Required #
+# Enhanced Fonts Installation Script
 
+# Source the global functions
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+source "$SCRIPT_DIR/Global_functions.sh"
+
+# Define the fonts to install
 fonts=(
-fonts-firacode
-fonts-font-awesome
-fonts-noto
-fonts-noto-cjk
-fonts-noto-color-emoji
+  fonts-firacode
+  fonts-font-awesome
+  fonts-noto
+  fonts-noto-cjk
+  fonts-noto-color-emoji
 )
-
-## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
-# Determine the directory where the script is located
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# Change the working directory to the parent directory of the script
-PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || exit 1
-
-source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/install-$(date +%d-%H%M%S)_fonts.log"
 
-# Installation of main components
-printf "\n%s - Installing fonts.... \n" "${NOTE}"
+# Create log header
+{
+  echo "===================================================="
+  echo "Font Installation Log - $(date)"
+  echo "System: $(lsb_release -ds)"
+  echo "===================================================="
+} >> "$LOG"
 
-for PKG1 in "${fonts[@]}"; do
-  install_package "$PKG1" 2>&1 | tee -a "$LOG"
-  if [ $? -ne 0 ]; then
-    echo -e "\e[1A\e[K${ERROR} - $PKG1 Package installation failed, Please check the installation logs"
-    exit 1
+echo -e "${NOTE} Installing fonts...."
+
+# Check for any broken packages before installation
+echo -e "${NOTE} Checking for broken packages..."
+sudo apt-get check >> "$LOG" 2>&1 || {
+  echo -e "${WARN} Found broken packages, attempting to fix..."
+  sudo apt-get --fix-broken install -y >> "$LOG" 2>&1
+}
+
+# Install each font package one by one
+for font in "${fonts[@]}"; do
+  echo -e "${NOTE} Installing $font..."
+  
+  # Try to install with apt directly - more reliable than the function for fonts
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$font" >> "$LOG" 2>&1
+  
+  if [ $? -eq 0 ]; then
+    echo -e "${OK} Successfully installed $font"
+  else
+    echo -e "${WARN} Failed to install $font, continuing with next package..."
   fi
 done
 
-# jetbrains nerd font. Necessary for waybar
-printf "\n%s - Downloading and Extracting Jetbrains Mono Nerd Font.... \n" "${NOTE}"
-DOWNLOAD_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
-# Maximum number of download attempts
-MAX_ATTEMPTS=3
-for ((ATTEMPT = 1; ATTEMPT <= MAX_ATTEMPTS; ATTEMPT++)); do
-    curl -OL "$DOWNLOAD_URL" 2>&1 | tee -a "$LOG" && break
-    echo "Download attempt $ATTEMPT failed. Retrying in 2 seconds..." 2>&1 | tee -a "$LOG"
-    sleep 2
-done
-
-# Check if the JetBrainsMono folder exists and delete it if it does
-if [ -d ~/.local/share/fonts/JetBrainsMonoNerd ]; then
-    rm -rf ~/.local/share/fonts/JetBrainsMonoNerd 2>&1 | tee -a "$LOG"
+# Download and install JetBrains Mono Nerd Font (if needed)
+if [ ! -d ~/.local/share/fonts/JetBrainsMonoNerd ]; then
+  echo -e "${NOTE} Setting up JetBrains Mono Nerd Font..."
+  
+  # Create font directory
+  mkdir -p ~/.local/share/fonts/JetBrainsMonoNerd
+  
+  # Download JetBrains Mono
+  echo -e "${NOTE} Downloading JetBrains Mono Nerd Font..."
+  
+  # Use curl instead of wget for more reliability
+  JETBRAINS_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+  
+  if ! curl -L --progress-bar "$JETBRAINS_URL" -o "$SCRIPT_DIR/JetBrainsMono.tar.xz"; then
+    echo -e "${ERROR} Failed to download JetBrains Mono font"
+  else
+    echo -e "${OK} Downloaded JetBrains Mono font"
+    
+    # Extract the font
+    echo -e "${NOTE} Extracting JetBrains Mono font..."
+    if ! tar -xJf "$SCRIPT_DIR/JetBrainsMono.tar.xz" -C ~/.local/share/fonts/JetBrainsMonoNerd; then
+      echo -e "${ERROR} Failed to extract JetBrains Mono font"
+    else
+      echo -e "${OK} Extracted JetBrains Mono font"
+      
+      # Update font cache
+      echo -e "${NOTE} Updating font cache..."
+      fc-cache -fv >> "$LOG" 2>&1
+      
+      # Clean up
+      echo -e "${NOTE} Cleaning up..."
+      rm -f "$SCRIPT_DIR/JetBrainsMono.tar.xz"
+    fi
+  fi
+else
+  echo -e "${NOTE} JetBrains Mono Nerd Font already installed. Skipping..."
 fi
 
-mkdir -p ~/.local/share/fonts/JetBrainsMonoNerd
-
-# Extract the new files into the JetBrainsMono folder and log the output
-tar -xJkf JetBrainsMono.tar.xz -C ~/.local/share/fonts/JetBrainsMonoNerd 2>&1 | tee -a "$LOG"
-
-# Update font cache and log the output
-fc-cache -v 2>&1 | tee -a "$LOG"
-
-clear
+echo -e "${OK} Font installation completed!"
