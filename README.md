@@ -3,8 +3,83 @@
 A powerful and intuitive setup builder for Ubuntu systems. This toolkit provides a modular approach to system configuration and software installation.
 
 ![Ubuntu Setup Builder](https://img.shields.io/badge/Ubuntu-Setup_Builder-orange)
-![Version](https://img.shields.io/badge/Version-2.0.0-blue)
+![Version](https://img.shields.io-badge/Version-2.0.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
+
+## Architecture Overview
+
+```mermaid
+flowchart TD
+    subgraph "Ubuntu Setup Builder"
+        %% User Interface Layer
+        subgraph "User Interface Layer"
+            U["User"]:::user
+        end
+
+        %% Control Layer
+        subgraph "Control Layer"
+            ISE["Interactive Setup Engine [setup.sh]"]:::engine
+        end
+
+        %% Configuration & Assets Layer
+        subgraph "Configuration & Assets Layer"
+            CM["Configuration Manager [config.sh]"]:::config
+            AS["Assets [assets/]"]:::config
+        end
+
+        %% Module Layer
+        subgraph "Module Layer"
+            IM["Installation Modules [install-scripts/*]"]:::module
+            GF["Global Functions [Global_functions.sh]"]:::global
+        end
+
+        %% Support/Logging Layer
+        subgraph "Support/Logging Layer"
+            Log["Logging & Diagnostics [Install-Logs]"]:::logging
+            Arch["Archived Scripts [_archived/]"]:::archived
+            subgraph "Utility Scripts"
+                UTIL1["lxcinstaller.sh"]:::utility
+                UTIL2["ubuservertemplate.sh"]:::utility
+            end
+        end
+
+        %% External Dependencies
+        subgraph "External Dependencies"
+            APT["APT/External Repos"]:::external
+        end
+    end
+
+    %% Relationships
+    U -->|"selects"| ISE
+    ISE -->|"reads"| CM
+    CM -->|"loads"| AS
+    ISE -->|"executes"| IM
+    IM -->|"sources"| GF
+    IM -->|"logs"| Log
+    GF -->|"reports"| Log
+    IM -->|"fetches"| APT
+
+    %% Click Events
+    click ISE "https://github.com/neop26/ubupublic/blob/main/setup.sh"
+    click CM "https://github.com/neop26/ubupublic/blob/main/config.sh"
+    click AS "https://github.com/neop26/ubupublic/tree/main/assets/"
+    click IM "https://github.com/neop26/ubupublic/tree/main/install-scripts/"
+    click GF "https://github.com/neop26/ubupublic/blob/main/install-scripts/Global_functions.sh"
+    click Arch "https://github.com/neop26/ubupublic/tree/main/_archived/"
+    click UTIL1 "https://github.com/neop26/ubupublic/blob/main/lxcinstaller.sh"
+    click UTIL2 "https://github.com/neop26/ubupublic/blob/main/ubuservertemplate.sh"
+
+    %% Styles
+    classDef user fill:#cce5ff,stroke:#333,stroke-width:2px;
+    classDef engine fill:#ffcccc,stroke:#333,stroke-width:2px;
+    classDef config fill:#ccffcc,stroke:#333,stroke-width:2px;
+    classDef module fill:#ccccff,stroke:#333,stroke-width:2px;
+    classDef global fill:#e0ccff,stroke:#333,stroke-width:2px;
+    classDef logging fill:#ffffcc,stroke:#333,stroke-width:2px;
+    classDef archived fill:#ffcc99,stroke:#333,stroke-width:2px;
+    classDef utility fill:#ccffff,stroke:#333,stroke-width:2px;
+    classDef external fill:#d9d9d9,stroke:#333,stroke-width:2px;
+```
 
 ## Features
 
