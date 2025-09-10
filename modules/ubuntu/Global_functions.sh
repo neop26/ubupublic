@@ -1,3 +1,47 @@
+# Function to check system requirements
+check_system_requirements() {
+	echo -e "${NOTE} Checking system requirements..."
+	# Check if running as root
+	if [ "$EUID" -eq 0 ]; then
+		echo -e "${ERROR} This script should not be run as root"
+		return 1
+	fi
+	# Check available disk space (minimum 5GB)
+	local available_space=$(df -BG / | awk 'NR==2 {print $4}' | sed 's/G//')
+	if [ "$available_space" -lt 5 ]; then
+		echo -e "${WARN} Low disk space: ${available_space}GB available. Minimum recommended: 5GB"
+	else
+		echo -e "${OK} Sufficient disk space: ${available_space}GB available"
+	fi
+	# Check RAM (minimum 2GB)
+	local total_ram=$(free -m | awk 'NR==2 {print $2}')
+	if [ "$total_ram" -lt 2048 ]; then
+		echo -e "${WARN} Low RAM: ${total_ram}MB available. Minimum recommended: 2048MB"
+	else
+		echo -e "${OK} Sufficient RAM: ${total_ram}MB available"
+	fi
+	# Check internet connection
+	if ping -c 1 google.com &> /dev/null; then
+		echo -e "${OK} Internet connection available"
+	else
+		echo -e "${WARN} No internet connection detected"
+		return 1
+	fi
+	echo -e "${OK} System requirements check completed"
+}
+
+# Function to set system timezone
+set_timezone() {
+	local timezone="${1:-UTC}"
+	echo -e "${NOTE} Setting timezone to $timezone"
+	sudo timedatectl set-timezone "$timezone" >> "$LOG" 2>&1
+	if [ $? -eq 0 ]; then
+		echo -e "${OK} Timezone set to $timezone"
+	else
+		echo -e "${ERROR} Failed to set timezone to $timezone"
+		return 1
+	fi
+}
 
 #!/bin/bash
 # 💫 Enhanced Global Functions for Scripts 💫
