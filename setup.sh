@@ -36,14 +36,17 @@ fi
 source "$SCRIPT_DIR/config.sh"
 
 # Check if Global_functions.sh exists
-if [ ! -f "$SCRIPT_DIR/install-scripts/Global_functions.sh" ]; then
-    echo "Global functions file not found at: $SCRIPT_DIR/install-scripts/Global_functions.sh"
-    echo "Please ensure the install-scripts directory exists and contains Global_functions.sh"
+if [ "$OS" = "ubuntu" ]; then
+    GLOBAL_FUNCTIONS_PATH="$SCRIPT_DIR/modules/ubuntu/Global_functions.sh"
+elif [ "$OS" = "arch" ]; then
+    GLOBAL_FUNCTIONS_PATH="$SCRIPT_DIR/modules/arch/Global_functions.sh"
+fi
+if [ ! -f "$GLOBAL_FUNCTIONS_PATH" ]; then
+    echo "Global functions file not found at: $GLOBAL_FUNCTIONS_PATH"
+    echo "Please ensure the modules directory exists and contains Global_functions.sh"
     exit 1
 fi
-
-# Source global functions
-source "$SCRIPT_DIR/install-scripts/Global_functions.sh"
+source "$GLOBAL_FUNCTIONS_PATH"
 
 # Clear the screen and show welcome message
 clear
@@ -69,7 +72,6 @@ fi
 
 # Create needed directories
 mkdir -p "$LOGS_DIR"
-mkdir -p "$SCRIPTS_DIR"
 mkdir -p "$ASSETS_DIR"
 
 # Define available modules
@@ -192,21 +194,20 @@ if [ ${#selected_indices[@]} -gt 0 ]; then
         for index in "${selected_indices[@]}"; do
             module_name="${MODULES[$index]%%:*}"
             module_desc="${MODULES[$index]#*:}"
-            
             echo -e "\n${ACTION} Installing: $module_desc"
-            script_path="$SCRIPTS_DIR/${module_name}.sh"
-            
+            if [ "$OS" = "ubuntu" ]; then
+                script_path="$SCRIPT_DIR/modules/ubuntu/${module_name}.sh"
+            elif [ "$OS" = "arch" ]; then
+                script_path="$SCRIPT_DIR/modules/arch/${module_name}.sh"
+            fi
             # Check if script exists and is executable
             if [ -f "$script_path" ]; then
-                # Make sure script is executable
                 chmod +x "$script_path"
-                
-                # Execute the script
                 "$script_path" || echo -e "${ERROR} Failed to execute: $script_path"
             else
                 echo -e "${WARN} Script not found: $script_path"
                 echo "Looked for: $script_path"
-                ls -la "$SCRIPTS_DIR"
+                ls -la "$(dirname "$script_path")"
             fi
         done
         
