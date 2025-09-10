@@ -1,6 +1,6 @@
 #!/bin/bash
-# Advanced Ubuntu Setup Builder
-# A modular, powerful and intuitive setup builder
+# Universal Linux Setup Builder
+# Detects OS (Ubuntu/Arch), loads relevant modules, and orchestrates setup
 
 # Ensure the script doesn't proceed if there's an error
 set -e
@@ -58,7 +58,7 @@ EOF
 echo
 echo "Version: $VERSION"
 echo "============================================================"
-echo "Advanced Ubuntu System Setup Builder"
+echo "Universal Linux System Setup Builder ($OS detected)"
 echo "============================================================"
 
 # Check if script is run as root
@@ -91,6 +91,24 @@ MODULES=(
     "installpwsh:Install PowerShell"
 )
 
+# --- OS Detection ---
+OS="unknown"
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    case "$ID" in
+        ubuntu|debian)
+            OS="ubuntu" ;;
+        arch)
+            OS="arch" ;;
+    esac
+elif [ -f /etc/arch-release ]; then
+    OS="arch"
+fi
+
+if [ "$OS" = "unknown" ]; then
+    echo "[ERROR] Unsupported or undetected Linux distribution."
+    exit 1
+fi
 # Function to ask yes/no question (define this before using it)
 ask_yes_no() {
     local prompt="$1"
@@ -221,3 +239,55 @@ else
 fi
 
 echo -e "${NOTE} Thank you for using the Ubuntu Setup Builder!"
+
+
+# --- Execute selected modules ---
+if [ ${#selected_indices[@]} -gt 0 ]; then
+    echo "[NOTE] Ready to install the following components:"
+    for index in "${selected_indices[@]}"; do
+        module_name="${MODULES[$index]%%:*}"
+        echo "  - $module_name"
+    done
+    if ask_yes_no "Do you want to proceed with installation?" "y"; then
+        for index in "${selected_indices[@]}"; do
+            module_name="${MODULES[$index]%%:*}"
+            echo "\n[ACTION] Installing: $module_name"
+            if [ "$OS" = "ubuntu" ]; then
+                script_path="$SCRIPT_DIR/modules/ubuntu/${module_name}.sh"
+            elif [ "$OS" = "arch" ]; then
+                script_path="$SCRIPT_DIR/modules/arch/${module_name}.sh"
+            fi
+            if [ -f "$script_path" ]; then
+                chmod +x "$script_path"
+                "$script_path" || echo "[ERROR] Failed to execute: $script_path"
+            else
+                echo "[WARN] Script not found: $script_path"
+            fi
+        done
+        # Clean up
+        if [ -e "JetBrainsMono.tar.xz" ]; then
+            echo "[NOTE] Cleaning up temporary files..."
+            rm JetBrainsMono.tar.xz
+        fi
+        echo "\n[OK] Setup completed successfully!"
+        # Show system information
+        if command -v fastfetch &> /dev/null; then
+            fastfetch
+        else
+            echo "\n[NOTE] System Information:"
+            echo "Hostname: $(hostname)"
+            echo "Distribution: $(lsb_release -ds 2>/dev/null || echo 'Unknown')"
+            echo "Kernel: $(uname -r)"
+            echo "Architecture: $(uname -m)"
+            echo "CPU: $(grep -m 1 "model name" /proc/cpuinfo 2>/dev/null | cut -d: -f2 | sed 's/^ *//' || echo 'Unknown')"
+            echo "Memory: $(free -h 2>/dev/null | awk '/Mem:/ {print $2}' || echo 'Unknown')"
+            echo "Disk Space: $(df -h / 2>/dev/null | awk 'NR==2 {print $2}' || echo 'Unknown')"
+        fi
+    else
+        echo "[NOTE] Installation canceled."
+    fi
+else
+    echo "[NOTE] No modules selected. Exiting."
+fi
+
+echo "[NOTE] Thank you for using the Universal Linux Setup Builder!"

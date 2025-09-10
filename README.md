@@ -151,11 +151,17 @@ Edit the `config.sh` file to customize default settings.
 
 ```bash
 ubupublic/
-├── assets/              # Configuration files and assets
-├── install-scripts/     # Individual installation modules
-├── config.sh            # Central configuration settings
-├── setup.sh             # Main setup script
-└── README.md            # Documentation
+├── assets/                # Static configs, images, branding, etc.
+├── modules/
+│   ├── ubuntu/            # Ubuntu-specific install modules
+│   └── arch/              # Arch-specific install modules
+├── core/                  # Shared functions/utilities (logging, prompts, etc.)
+├── config.sh              # Central config (minimal, sourced by setup.sh)
+├── setup.sh               # Main entrypoint (OS detection, menu, orchestration)
+├── README.md
+├── LICENSE
+├── .github/               # Workflows, issue templates, etc.
+└── _archived/             # Legacy scripts, not loaded by default
 ```
 
 ## Logging
@@ -177,6 +183,16 @@ This project was inspired by [JaKooLit](https://github.com/JaKooLit/Debian-Hyprl
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Changelog
+
+### v2.2.0 - 2025-09-11
+
+- Major refactor: new modular directory structure
+- setup.sh now detects Ubuntu/Arch and loads relevant modules
+- All install scripts moved to OS-specific folders
+- Shared utilities moved to core/
+- Legacy/unused scripts archived
+- Improved menu, orchestration, and error handling
+- Updated documentation and changelog
 
 ### v2.1.0 - 2025-09-11
 

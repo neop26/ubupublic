@@ -1,0 +1,16 @@
+# List of Ubuntu install modules
+update.sh
+zsh.sh
+nettools.sh
+fonts.sh
+fastfetch.sh
+azuredev.sh
+docker.sh
+nvidiadrivers.sh
+staticip.sh
+cockpit.sh
+gitconfig.sh
+nodejsinstaller.sh
+apache2.sh
+createuser.sh
+installpwsh.sh
