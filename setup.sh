@@ -35,6 +35,25 @@ fi
 # Source configuration
 source "$SCRIPT_DIR/config.sh"
 
+# --- OS Detection ---
+OS="unknown"
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    case "$ID" in
+        ubuntu|debian)
+            OS="ubuntu" ;;
+        arch)
+            OS="arch" ;;
+    esac
+elif [ -f /etc/arch-release ]; then
+    OS="arch"
+fi
+
+if [ "$OS" = "unknown" ]; then
+    echo "[ERROR] Unsupported or undetected Linux distribution."
+    exit 1
+fi
+
 # Check if Global_functions.sh exists
 if [ "$OS" = "ubuntu" ]; then
     GLOBAL_FUNCTIONS_PATH="$SCRIPT_DIR/modules/ubuntu/Global_functions.sh"
