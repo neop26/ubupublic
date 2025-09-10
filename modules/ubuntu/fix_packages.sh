@@ -2,8 +2,11 @@
 # Script to fix package installation issues
 
 # Source the global functions
-SCRIPT_DIR="$(dirname \"$(readlink -f \"$0\")\")"
-source "$SCRIPT_DIR/Global_functions.sh"
+# Source the global functions using absolute path
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
+	source "$SCRIPT_DIR/Global_functions.sh"
+fi
 
 echo -e "${NOTE} Starting package system repair..."
 

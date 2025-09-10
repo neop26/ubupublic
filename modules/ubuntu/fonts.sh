@@ -3,7 +3,11 @@
 
 # Source the global functions
 SCRIPT_DIR="$(dirname \"$(readlink -f \"$0\")\")"
-source "$SCRIPT_DIR/Global_functions.sh"
+# Source the global functions using absolute path
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
+	source "$SCRIPT_DIR/Global_functions.sh"
+fi
 
 # Define the fonts to install
 fonts=(
@@ -25,8 +29,11 @@ LOG="Install-Logs/install-$(date +%d-%H%M%S)_fonts.log"
 	echo "===================================================="
 } >> "$LOG"
 
-echo -e "${NOTE} Installing fonts...."
-
+	# Source the global functions using absolute path
+	SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+	if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
+		source "$SCRIPT_DIR/Global_functions.sh"
+	fi
 # Check for any broken packages before installation
 echo -e "${NOTE} Checking for broken packages..."
 sudo apt-get check >> "$LOG" 2>&1 || {

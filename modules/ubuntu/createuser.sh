@@ -1,6 +1,11 @@
 # Moved from install-scripts: createuser.sh (ubuntu-specific)
 #!/bin/bash
 
+# Source the global functions using absolute path
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
+	source "$SCRIPT_DIR/Global_functions.sh"
+fi
 # Prompt for new user information
 read -p "Enter the new username: " username
 read -s -p "Enter the password: " password

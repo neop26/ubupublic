@@ -1,6 +1,11 @@
 # Moved from install-scripts: azuredev.sh (ubuntu-specific)
 #!/bin/bash
 
+# Source the global functions using absolute path
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
+	source "$SCRIPT_DIR/Global_functions.sh"
+fi
 # Ability to deploy repository
 sudo apt install --reinstall software-properties-common -y
 
