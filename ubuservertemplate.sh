@@ -115,7 +115,7 @@ ask_yes_no "-Install Net-tools for this system" nettools
 printf "\n"
 
 printf "\n"
-ask_yes_no "-Install Neofetch for this system" neofetch
+ask_yes_no "-Install Fastfetch for this system" fastfetch
 printf "\n"
 
 printf "\n"
@@ -165,9 +165,9 @@ if [ "$nettools" == "Y" ]; then
     execute_script "nettools.sh"
 fi
 
-if [ "$neofetch" == "Y" ]; then
-    echo -e "\n${NOTE} Installing Neofetch..."
-    execute_script "neofetch.sh"
+if [ "$fastfetch" == "Y" ]; then
+    echo -e "\n${NOTE} Installing Fastfetch..."
+    execute_script "fastfetch.sh"
 fi
 
 if [ "$azdev" == "Y" ]; then

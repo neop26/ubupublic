@@ -3,7 +3,11 @@
 #!/bin/bash
 
 # Check if running as root. If root, script will exit
-if [[ $EUID -eq 0 ]]; then
+if [[ $EUID -eq 0 ]];if [ "$fastfetch" == "Y" ]; then
+    execute_script "fastfetch.sh"
+fi
+
+if [ "$staticip" == "Y" ]; then
     echo "This script should not be executed as root! Exiting......."
     exit 1
 fi
@@ -115,7 +119,7 @@ ask_yes_no "-Install Net-tools for this system" nettools
 printf "\n"
 
 printf "\n"
-ask_yes_no "-Install Neofetch for this system" neofetch
+ask_yes_no "-Install Fastfetch for this system" fastfetch
 printf "\n"
 
 printf "\n"
@@ -154,6 +158,10 @@ fi
 
 if [ "$neofetch" == "Y" ]; then
     execute_script "neofetch.sh"
+fi
+
+if [ "$fastfetch" == "Y" ]; then
+    execute_script "fastfetch.sh"
 fi
 
 if [ "$staticip" == "Y" ]; then

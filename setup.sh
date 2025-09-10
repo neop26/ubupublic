@@ -15,8 +15,8 @@ if [ ! -f "$SCRIPT_DIR/config.sh" ]; then
     cat > "$SCRIPT_DIR/config.sh" << 'EOL'
 #!/bin/bash
 # Default configuration
-VERSION="2.0.0"
-DEFAULT_TIMEZONE="UTC"
+VERSION="2.1.0"
+DEFAULT_TIMEZONE="Pacific/Auckland"
 ESSENTIAL_PACKAGES=(curl wget git nano)
 LOGS_DIR="$(dirname "$(readlink -f "$0")")/Install-Logs"
 mkdir -p "$LOGS_DIR"
@@ -78,7 +78,7 @@ MODULES=(
     "zsh:Install ZSH with Oh-My-ZSH"
     "nettools:Install network diagnostic tools"
     "fonts:Install recommended fonts"
-    "neofetch:Install and configure Neofetch"
+    "fastfetch:Install and configure Fastfetch"
     "azuredev:Setup Azure development environment"
     "docker:Install Docker and Docker Compose"
     "nvidiadrivers:Install NVIDIA drivers"
@@ -201,8 +201,8 @@ if [ ${#selected_indices[@]} -gt 0 ]; then
         echo -e "\n${OK} Setup completed successfully!"
         
         # Show system information
-        if command -v neofetch &> /dev/null; then
-            neofetch
+        if command -v fastfetch &> /dev/null; then
+            fastfetch
         else
             echo -e "\n${NOTE} System Information:"
             echo "Hostname: $(hostname)"

@@ -111,7 +111,7 @@ execute_script "update.sh"
 execute_script "fonts.sh"
 execute_script "zsh.sh"
 execute_script "nettools.sh"
-execute_script "neofetch.sh"
+execute_script "fastfetch.sh"
 
 # Clean up
 printf "\n${OK} performing some clean up.\n"
