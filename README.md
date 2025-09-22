@@ -1,10 +1,10 @@
-# Ubuntu Setup Builder
+# Universal Linux Setup Builder
 
-A powerful and intuitive setup builder for Ubuntu systems. This toolkit provides a modular approach to system configuration and software installation.
+A powerful, modular setup builder for Ubuntu and Arch Linux systems. This toolkit provides a modular approach to system configuration and software installation.
 
 | Badges | | | |
 |--------|-|-|-|
-| ![Ubuntu Setup Builder](https://img.shields.io/badge/Ubuntu-Setup_Builder-orange?style=for-the-badge&logo=ubuntu) | ![Version](https://img.shields.io/badge/Version-2.1.0-blue?style=for-the-badge) | ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge) | |
+| ![Universal Setup Builder](https://img.shields.io/badge/Linux-Setup_Builder-orange?style=for-the-badge&logo=linux) | ![Version](https://img.shields.io/badge/Version-2.2.0-blue?style=for-the-badge) | ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge) | |
 | [![GitHub stars](https://img.shields.io/github/stars/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/stargazers) | [![GitHub forks](https://img.shields.io/github/forks/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/network) | [![GitHub issues](https://img.shields.io/github/issues/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/issues) | [![GitHub pull requests](https://img.shields.io/github/issues-pr/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/pulls) |
 | [![GitHub last commit](https://img.shields.io/github/last-commit/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/commits/main) | [![GitHub contributors](https://img.shields.io/github/contributors/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/graphs/contributors) | [![GitHub repo size](https://img.shields.io/github/repo-size/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic) | |
 | [![Bash](https://img.shields.io/badge/Bash-4.0+-black?style=for-the-badge&logo=gnu-bash)](https://www.gnu.org/software/bash/) | [![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04+-E95420?style=for-the-badge&logo=ubuntu)](https://ubuntu.com/) | | |
@@ -32,7 +32,7 @@ flowchart TD
 
         %% Module Layer
         subgraph "Module Layer"
-            IM["Installation Modules [install-scripts/*]"]:::module
+            IM["Installation Modules [modules/<os>/*]"]:::module
             GF["Global Functions [Global_functions.sh]"]:::global
         end
 
@@ -40,10 +40,6 @@ flowchart TD
         subgraph "Support/Logging Layer"
             Log["Logging & Diagnostics [Install-Logs]"]:::logging
             Arch["Archived Scripts [_archived/]"]:::archived
-            subgraph "Utility Scripts"
-                UTIL1["lxcinstaller.sh"]:::utility
-                UTIL2["ubuservertemplate.sh"]:::utility
-            end
         end
 
         %% External Dependencies
@@ -66,11 +62,10 @@ flowchart TD
     click ISE "https://github.com/neop26/ubupublic/blob/main/setup.sh"
     click CM "https://github.com/neop26/ubupublic/blob/main/config.sh"
     click AS "https://github.com/neop26/ubupublic/tree/main/assets/"
-    click IM "https://github.com/neop26/ubupublic/tree/main/install-scripts/"
+    click IM "https://github.com/neop26/ubupublic/tree/main/modules/"
     click GF "https://github.com/neop26/ubupublic/blob/main/core/Global_functions.sh"
     click Arch "https://github.com/neop26/ubupublic/tree/main/_archived/"
-    click UTIL1 "https://github.com/neop26/ubupublic/blob/main/lxcinstaller.sh"
-    click UTIL2 "https://github.com/neop26/ubupublic/blob/main/ubuservertemplate.sh"
+    
 
     %% Styles
     classDef user fill:#cce5ff,stroke:#333,stroke-width:2px;
@@ -91,7 +86,7 @@ flowchart TD
 - 🔄 Interactive menu-driven interface
 - 📊 Progress indicators for long-running operations
 - 📝 Detailed logging of all operations
-- 🌐 Support for various Ubuntu versions
+- 🌐 Ubuntu (20.04/22.04/24.04) and Arch Linux support
 - 🔒 Security-focused configurations
 - 🚀 Performance optimizations
 
@@ -124,23 +119,23 @@ Follow the interactive prompts to select the modules you want to install.
 | Network Tools | Install network diagnostic and management tools |
 | Fonts | Install recommended font packages |
 | Fastfetch | Install and configure Fastfetch system information tool |
-| Azure Dev | Setup Azure development environment |
+| Azure Dev | Setup Azure development environment (partial on Arch) |
 | Docker | Install Docker and Docker Compose |
 | NVIDIA Drivers | Install NVIDIA drivers for GPU support |
-| Static IP | Configure static IP address |
+| Static IP | Configure static IP address (Arch: manual guidance) |
 | Cockpit | Setup Cockpit web management console |
 | Git Config | Configure Git settings |
 | Node.js | Install Node.js and npm |
 | Apache | Install Apache web server |
 | Create User | Create a new user account |
-| PowerShell | Install PowerShell for Linux |
+| PowerShell | Install PowerShell (Ubuntu). Arch: AUR guidance |
 
 ## Customization
 
 ### Adding New Modules
 
-1. Create a new script file in the `install-scripts` directory
-2. Make sure to source the `Global_functions.sh` file
+1. Create a new script in `modules/<os>/` (e.g., `modules/ubuntu/mytool.sh`)
+2. Source the shared helpers: `source "$REPO_DIR/core/Global_functions.sh"`
 3. Add your module to the `MODULES` array in `setup.sh`
 
 ### Configuration
@@ -168,7 +163,7 @@ All installation logs are stored in the `Install-Logs` directory with timestamps
 
 ## Dependencies
 
-- Ubuntu (tested on 20.04, 22.04, and 24.04)
+- Ubuntu (20.04/22.04/24.04) or Arch Linux (rolling)
 - Bash 4.0+
 - Internet connection for package downloads
 
@@ -178,31 +173,21 @@ This project was inspired by [JaKooLit](https://github.com/JaKooLit/Debian-Hyprl
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT — see `LICENSE`.
 
-## Status
+## Changelog
 
-- Core utilities consolidated under `core/Global_functions.sh`
-- Ubuntu modules live under `modules/ubuntu/`
-- Legacy `install-scripts/` retained for reference and will be archived
-- Neofetch is deprecated; Fastfetch is the default and supported
-- Updated default timezone to Pacific/Auckland
-- Enhanced system information display capabilities
+### v2.2.0 - 2025-09-22
+- Consolidated helpers into `core/Global_functions.sh`; removed duplicates
+- Canonicalized `config.sh` and directory paths
+- Completed migration to `modules/<os>/*`; removed legacy `install-scripts/`
+- Neofetch deprecated → Fastfetch module added and used by default
+- Hardened installers (no curl-to-bash; better pathing/quoting)
+- Added Arch parity modules (update, fastfetch, zsh, docker, etc.)
+- Improved `setup.sh` orchestration and messages
+
+### v2.1.0 - 2024-09-11
+- Replaced Neofetch with Fastfetch in docs; preliminary module changes
 
 ### v2.0.0 - 2024-05-25
-
-- Complete architecture redesign
-- Added interactive menu system
-- Enhanced error handling and logging
-- Improved module organization
-- Added progress indicators
-
-### v1.1.0 - 2023-12-18
-
-- Added NVIDIA driver installer
-- Various bugfixes and improvements
-
-### v1.0.0 - 2023-05-06
-
-- Initial release
-- Tested on Ubuntu 23.10 and 24.04
+- Architecture redesign, interactive menu, logging, modularization
