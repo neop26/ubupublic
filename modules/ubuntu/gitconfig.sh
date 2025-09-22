@@ -1,25 +1,23 @@
 #!/bin/bash
-# Source the global functions using absolute path
+
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
+
+read -r -p "Enter Git user.name: " user
+read -r -p "Enter Git user.email: " email
+
+# Backup current .gitconfig (if exists)
+if [ -f "$HOME/.gitconfig" ]; then
+  cp "$HOME/.gitconfig" "$HOME/.gitconfig.backup-$(date +%Y%m%d-%H%M%S)"
 fi
 
-#!/bin/bash
-
-read -p "Enter the Email Address for Git config (e.g., something@somethingcom): " email
-read -p "Enter the User for Git config (e.g., someone): " user
-
-# Backup current .gitconfig
-sudo cp ~/.gitconfig ~/.gitconfig.backup
-sudo rm -r ~/.gitconfig
-
-# Generate new .gitconfig
-cat << EOF | sudo tee ~/.gitconfig
+cat > "$HOME/.gitconfig" << EOF
 [user]
-	email = $email
-	name = $user
+    name = $user
+    email = $email
 [credential]
-	helper = store
+    helper = store
 EOF
 # Moved from install-scripts: gitconfig.sh (ubuntu-specific)

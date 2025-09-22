@@ -67,7 +67,7 @@ flowchart TD
     click CM "https://github.com/neop26/ubupublic/blob/main/config.sh"
     click AS "https://github.com/neop26/ubupublic/tree/main/assets/"
     click IM "https://github.com/neop26/ubupublic/tree/main/install-scripts/"
-    click GF "https://github.com/neop26/ubupublic/blob/main/install-scripts/Global_functions.sh"
+    click GF "https://github.com/neop26/ubupublic/blob/main/core/Global_functions.sh"
     click Arch "https://github.com/neop26/ubupublic/tree/main/_archived/"
     click UTIL1 "https://github.com/neop26/ubupublic/blob/main/lxcinstaller.sh"
     click UTIL2 "https://github.com/neop26/ubupublic/blob/main/ubuservertemplate.sh"
@@ -156,11 +156,9 @@ ubupublic/
 │   ├── ubuntu/            # Ubuntu-specific install modules
 │   └── arch/              # Arch-specific install modules
 ├── core/                  # Shared functions/utilities (logging, prompts, etc.)
-├── config.sh              # Central config (minimal, sourced by setup.sh)
+├── config.sh              # Canonical config (sourced by all scripts)
 ├── setup.sh               # Main entrypoint (OS detection, menu, orchestration)
 ├── README.md
-├── LICENSE
-├── .github/               # Workflows, issue templates, etc.
 └── _archived/             # Legacy scripts, not loaded by default
 ```
 
@@ -182,22 +180,12 @@ This project was inspired by [JaKooLit](https://github.com/JaKooLit/Debian-Hyprl
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Changelog
+## Status
 
-### v2.2.0 - 2025-09-11
-
-- Major refactor: new modular directory structure
-- setup.sh now detects Ubuntu/Arch and loads relevant modules
-- All install scripts moved to OS-specific folders
-- Shared utilities moved to core/
-- Legacy/unused scripts archived
-- Improved menu, orchestration, and error handling
-- Updated documentation and changelog
-
-### v2.1.0 - 2025-09-11
-
-- Replaced Neofetch with Fastfetch for better performance
-- Added custom Fastfetch configuration support
+- Core utilities consolidated under `core/Global_functions.sh`
+- Ubuntu modules live under `modules/ubuntu/`
+- Legacy `install-scripts/` retained for reference and will be archived
+- Neofetch is deprecated; Fastfetch is the default and supported
 - Updated default timezone to Pacific/Auckland
 - Enhanced system information display capabilities
 
@@ -218,4 +206,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Initial release
 - Tested on Ubuntu 23.10 and 24.04
-

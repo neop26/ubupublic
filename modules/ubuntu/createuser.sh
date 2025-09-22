@@ -1,27 +1,22 @@
-# Moved from install-scripts: createuser.sh (ubuntu-specific)
 #!/bin/bash
+# Create a new sudo-capable user
 
-# Source the global functions using absolute path
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
+
+read -r -p "Enter the new username: " username
+if [ -z "$username" ]; then
+  echo -e "${ERROR} Username cannot be empty"
+  exit 1
 fi
-# Prompt for new user information
-read -p "Enter the new username: " username
-read -s -p "Enter the password: " password
+read -r -s -p "Enter the password: " password
 echo
 
-# Create the new user with the input information
-sudo adduser --gecos "" $username
-
-# Set the password for the new user
+sudo adduser --gecos "" "$username"
 echo "$username:$password" | sudo chpasswd
+sudo usermod -aG sudo "$username"
 
-# Add the new user to the sudo group
-sudo usermod -aG sudo $username
-
-# Disable the root account
-sudo passwd -l root
-
-echo "User $username created and added to the sudo group. Root account disabled."
+echo "User $username created and added to the sudo group."
 # Moved from install-scripts: createuser.sh (ubuntu-specific)

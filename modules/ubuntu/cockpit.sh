@@ -1,10 +1,10 @@
-# Moved from install-scripts: cockpit.sh (ubuntu-specific)
 #!/bin/bash
-sudo apt update
+# Install Cockpit web console
 
-# Source the global functions using absolute path
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
-fi
-sudo apt -y install cockpit
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
+
+sudo apt-get update >>"$LOG" 2>&1
+install_package cockpit

@@ -1,11 +1,9 @@
-# Bash script to install network tools
-
 #!/bin/bash
+# Install basic network tools on Ubuntu
 
-# Source the global functions using absolute path
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
-fi
-sudo apt install net-tools -y
-# Moved from install-scripts: nettools.sh (ubuntu-specific)
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
+
+install_packages net-tools nmap traceroute iperf3

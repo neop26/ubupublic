@@ -1,12 +1,10 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
-# Zsh and Oh my Zsh + Pokemon ColorScripts#
+# 💫 Zsh and Oh My Zsh + plugins
 
-# Source the global functions using absolute path
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
-fi
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
 # Install zsh
 sudo apt-get update
 sudo apt-get install -y zsh
@@ -28,7 +26,9 @@ if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
 fi
 
 # Copy .zshrc configuration
-cp -r 'assets/.zshrc' ~/
+if [ -f "$ASSETS_DIR/.zshrc" ]; then
+  cp "$ASSETS_DIR/.zshrc" "$HOME/.zshrc"
+fi
 
 ## Install Pokemon color scripts
 #if [ -d "pokemon-colorscripts" ]; then
@@ -41,5 +41,5 @@ cp -r 'assets/.zshrc' ~/
 
 # Set zsh as the default shell
 echo "Changing default shell to zsh, so you will be prompted"
-chsh -s $(which zsh)
+chsh -s "$(which zsh)"
 # Moved from install-scripts: zsh.sh (ubuntu-specific)

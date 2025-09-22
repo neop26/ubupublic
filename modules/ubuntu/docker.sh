@@ -1,12 +1,10 @@
-# Moved from install-scripts: docker.sh (ubuntu-specific)
 #!/bin/bash
 # Enhanced Docker installation script with better error handling and feedback
 
-# Source the global functions using absolute path
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
-fi
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
 
 echo -e "${NOTE} Starting Docker installation..."
 
@@ -38,8 +36,10 @@ install_packages curl apt-transport-https ca-certificates gnupg lsb-release
 
 # Ask for installation method
 echo -e "${ACTION} Select Docker installation method:"
-echo "1) Use Docker's convenience script (recommended)"
-echo "2) Add Docker's official repository manually"
+echo "1) Use Docker's convenience script (quick, less transparent)"
+echo "2) Add Docker's official repository (recommended)"
+read -r -p "Choose [1/2] (default 2): " docker_method
+docker_method=${docker_method:-2}
 
 case $docker_method in
 	2)
@@ -127,10 +127,7 @@ if ask_yes_no "Would you like to install Portainer for Docker management?" "y"; 
 fi
 
 # Clean up
-if [ -f "get-docker.sh" ]; then
-	echo -e "${NOTE} Cleaning up..."
-	rm get-docker.sh
-fi
+[ -f "get-docker.sh" ] && rm -f get-docker.sh
 
 echo -e "${NOTE} Docker installation log saved to: $LOG"
-# Moved from install-scripts: docker.sh (ubuntu-specific)
+exit 0

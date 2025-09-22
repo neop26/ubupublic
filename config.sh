@@ -1,61 +1,37 @@
 #!/bin/bash
-# Central configuration file for Ubuntu setup scripts
+# Canonical configuration for setup scripts
 
-# Script version
-VERSION="2.0.0"
+# Versioning
+VERSION="2.2.0"
 
 # Default timezone
 DEFAULT_TIMEZONE="UTC"
 
-# Default package groups
-ESSENTIAL_PACKAGES=(
-  curl
-  wget
-  git
-  nano
-  software-properties-common
-  apt-transport-https
-  gnupg
-  ca-certificates
-)
+# Compute repo base directory robustly
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
-# Font packages
-FONT_PACKAGES=(
-  fonts-firacode
-  fonts-font-awesome
-  fonts-noto
-  fonts-noto-cjk
-  fonts-noto-color-emoji
-)
-
-# Network tools
-NETWORK_PACKAGES=(
-  net-tools
-  nmap
-  iperf3
-  traceroute
-)
-
-# Development tools
-DEV_PACKAGES=(
-  build-essential
-  cmake
-  pkg-config
-)
-
-# Get the base directory
-BASE_DIR="$(dirname "$(readlink -f "$0")")"
-
-# Default installation directories
-CONFIG_DIR="$HOME/.config"
-SCRIPTS_DIR="$BASE_DIR/install-scripts"
+# Directories
+MODULES_DIR="$BASE_DIR/modules"
 ASSETS_DIR="$BASE_DIR/assets"
 LOGS_DIR="$BASE_DIR/Install-Logs"
-
-# Create logs directory if not exists
+CONFIG_DIR="$HOME/.config"
 mkdir -p "$LOGS_DIR"
 
-# Color definitions
+# Package groups
+ESSENTIAL_PACKAGES=(
+  curl wget git nano software-properties-common apt-transport-https gnupg ca-certificates
+)
+FONT_PACKAGES=(
+  fonts-firacode fonts-font-awesome fonts-noto fonts-noto-cjk fonts-noto-color-emoji
+)
+NETWORK_PACKAGES=(
+  net-tools nmap iperf3 traceroute
+)
+DEV_PACKAGES=(
+  build-essential cmake pkg-config
+)
+
+# Colors
 OK="$(tput setaf 2)[OK]$(tput sgr0)"
 ERROR="$(tput setaf 1)[ERROR]$(tput sgr0)"
 NOTE="$(tput setaf 3)[NOTE]$(tput sgr0)"
@@ -63,33 +39,15 @@ WARN="$(tput setaf 166)[WARN]$(tput sgr0)"
 ACTION="$(tput setaf 6)[ACTION]$(tput sgr0)"
 RESET="$(tput sgr0)"
 
-# Function to log messages
-log_message() {
-  local type="$1"
-  local message="$2"
-  echo -e "${type} ${message}"
-}
-
-# Function to get current timestamp
-get_timestamp() {
-  date +"%Y-%m-%d %H:%M:%S"
-}
-
-# Debug mode (set to true to enable more verbose output)
+# Debug utilities
 DEBUG_MODE=true
+log_message() { echo -e "$1 $2"; }
+get_timestamp() { date +"%Y-%m-%d %H:%M:%S"; }
+debug() { [ "$DEBUG_MODE" = true ] && log_message "${NOTE}" "DEBUG: $*"; }
 
-# Debug function
-debug() {
-  if [ "$DEBUG_MODE" = true ]; then
-    log_message "${NOTE}" "DEBUG: $1"
-  fi
+[ "$DEBUG_MODE" = true ] && {
+  echo "Config loaded: $BASE_DIR/config.sh"
+  echo "Modules: $MODULES_DIR"
+  echo "Assets:  $ASSETS_DIR"
+  echo "Logs:    $LOGS_DIR"
 }
-
-# Print configuration information
-if [ "$DEBUG_MODE" = true ]; then
-  echo "Configuration loaded from: $0"
-  echo "Base directory: $BASE_DIR"
-  echo "Scripts directory: $SCRIPTS_DIR"
-  echo "Assets directory: $ASSETS_DIR"
-  echo "Logs directory: $LOGS_DIR"
-fi

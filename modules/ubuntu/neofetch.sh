@@ -1,20 +1,11 @@
-
-# Bash script to Update the system
-
 #!/bin/bash
+# Deprecated: Neofetch is replaced by Fastfetch.
+# This wrapper installs and configures Fastfetch instead.
 
-# Update the package list
-sudo apt update
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
 
-# Install Neofetch
-sudo apt install neofetch -y
-
-#Backing up Existing Config
-if [ -f "~/.config/neofetch/config.conf" ]; then
-cp -b "~/.config/neofetch/config.conf" "~/.config/neofetch/config.conf-backup" || true
-fi
-
-# Copy the neofetch config file
-mkdir -p ~/.config/neofetch
- cp -r 'assets/config.conf'  ~/.config/neofetch/
-# Moved from install-scripts: neofetch.sh (ubuntu-specific, legacy)
+echo -e "${NOTE} Neofetch module is deprecated. Installing Fastfetch instead..."
+"$SCRIPT_DIR/fastfetch.sh"

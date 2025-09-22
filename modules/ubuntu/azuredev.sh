@@ -1,64 +1,70 @@
-# Moved from install-scripts: azuredev.sh (ubuntu-specific)
 #!/bin/bash
+# Azure development environment setup (Terraform, Azure CLI, Bicep, Neovim, etc.)
 
-# Source the global functions using absolute path
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
+
+echo -e "${NOTE} Preparing Azure development environment..."
+
+# Essentials
+install_packages software-properties-common gnupg curl ca-certificates apt-transport-https
+
+# Terraform via HashiCorp APT repo
+echo -e "${NOTE} Adding HashiCorp APT repository for Terraform..."
+download_file "https://apt.releases.hashicorp.com/gpg" "/tmp/hashicorp.gpg" && \
+  sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg /tmp/hashicorp.gpg >>"$LOG" 2>&1
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/hashicorp.list >/dev/null
+sudo apt-get update >>"$LOG" 2>&1
+install_package terraform
+terraform -install-autocomplete >>"$LOG" 2>&1 || true
+
+# Azure CLI via Microsoft package repo (.deb config)
+echo -e "${NOTE} Adding Microsoft package repository for Azure CLI..."
+download_file "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb" "/tmp/packages-microsoft-prod.deb"
+sudo dpkg -i /tmp/packages-microsoft-prod.deb >>"$LOG" 2>&1
+sudo apt-get update >>"$LOG" 2>&1
+install_package azure-cli
+
+# Bicep via Azure CLI (no manual binary fetch)
+if command_exists az; then
+  echo -e "${NOTE} Installing Bicep via Azure CLI..."
+  az bicep install >>"$LOG" 2>&1 || true
+  az bicep upgrade >>"$LOG" 2>&1 || true
+else
+  echo -e "${WARN} Azure CLI not detected; skipping Bicep installation"
 fi
-# Ability to deploy repository
-sudo apt install --reinstall software-properties-common -y
 
-## Deploying Terraform
-sudo apt install -y gnupg software-properties-common curl -y
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update && sudo apt install terraform -y
-terraform -install-autocomplete
-source ~/.bashrc
-## Test by terraform tab (Twice) this should show auto complete text
-echo "Terraform has been installed!"
-# Installing Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-echo "Azure CLI has been installed!"
-# Update and install Bicep
-curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-chmod +x ./bicep
-sudo mv ./bicep /usr/local/bin/bicep
-bicep --help # Verify Deployment
-echo "Bicep has been installed!"
-# Deploying Nvim
-sudo add-apt-repository ppa:neovim-ppa/unstable -y
-sudo apt-get update -y
-sudo apt install build-essential -y
-sudo apt-get install manpages-dev -y
-sudo apt install cmake -y
-sudo apt-get install ninja-build gettext libtool-bin cmake g++ pkg-config unzip curl -y
-sudo apt-get install neovim -y
-# Configuring LazyVim
-sudo mkdir .config/nvim
-sudo git clone https://github.com/LazyVim/starter ~/.config/nvim
-echo "Nvim has been installed!"
+# Neovim and developer tooling
+add_repository ppa:neovim-ppa/unstable
+install_packages build-essential cmake ninja-build gettext libtool-bin g++ pkg-config unzip curl neovim
 
-# Installing Powershell
-sudo apt install dirmngr lsb-release ca-certificates software-properties-common apt-transport-https curl -y
-curl -fSsL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor | sudo tee /usr/share/keyrings/powershell.gpg > /dev/null
-echo "deb [arch=amd64,armhf,arm64 signed-by=/usr/share/keyrings/powershell.gpg] https://packages.microsoft.com/ubuntu/22.04/prod/ jammy main" | sudo tee /etc/apt/sources.list.d/powershell.list
-sudo apt install powershell
-echo "PowerShell Installed"
+# Configure LazyVim starter as user (no sudo)
+NVIM_DIR="$HOME/.config/nvim"
+if [ ! -d "$NVIM_DIR" ]; then
+  mkdir -p "$NVIM_DIR"
+  git clone https://github.com/LazyVim/starter "$NVIM_DIR" >>"$LOG" 2>&1 || true
+fi
 
-# Install Nodejs
-sudo apt install nodejs -y
-sudo apt install npm -y
-echo "Nodejs has been installed!" 
+# PowerShell via Microsoft repo
+install_packages dirmngr lsb-release
+download_file "https://packages.microsoft.com/keys/microsoft.asc" "/tmp/microsoft.asc"
+gpg --dearmor < /tmp/microsoft.asc | sudo tee /usr/share/keyrings/powershell.gpg >/dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/powershell.gpg] https://packages.microsoft.com/ubuntu/$(lsb_release -rs)/prod $(lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/powershell.list >/dev/null
+sudo apt-get update >>"$LOG" 2>&1
+install_package powershell
 
-# Install pip
-sudo apt install python3-pip -y
-echo "Pip has been installed!"
+# Node.js + npm (from Ubuntu repos by default)
+install_packages nodejs npm
 
-# Install Ansible
-sudo apt-add-repository ppa:ansible/ansible
-sudo apt update
-sudo apt install ansible -y
-echo "Ansible has been installed!"
-# Moved from install-scripts: azuredev.sh (ubuntu-specific)
+# Python pip
+install_package python3-pip
+
+# Ansible PPA
+add_repository ppa:ansible/ansible
+install_package ansible
+
+echo -e "${OK} Azure development environment ready."

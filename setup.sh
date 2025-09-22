@@ -2,37 +2,16 @@
 # Universal Linux Setup Builder
 # Detects OS (Ubuntu/Arch), loads relevant modules, and orchestrates setup
 
-# Ensure the script doesn't proceed if there's an error
 set -e
 
 # Source the configuration and global functions
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-# Check if config.sh exists, otherwise create it
+# Require configuration
 if [ ! -f "$SCRIPT_DIR/config.sh" ]; then
-    echo "Configuration file not found. Creating default configuration..."
-    mkdir -p "$SCRIPT_DIR"
-    cat > "$SCRIPT_DIR/config.sh" << 'EOL'
-#!/bin/bash
-# Default configuration
-VERSION="2.1.0"
-DEFAULT_TIMEZONE="Pacific/Auckland"
-ESSENTIAL_PACKAGES=(curl wget git nano)
-LOGS_DIR="$(dirname "$(readlink -f "$0")")/Install-Logs"
-mkdir -p "$LOGS_DIR"
-CONFIG_DIR="$HOME/.config"
-SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")/install-scripts"
-ASSETS_DIR="$(dirname "$(readlink -f "$0")")/assets"
-OK="$(tput setaf 2)[OK]$(tput sgr0)"
-ERROR="$(tput setaf 1)[ERROR]$(tput sgr0)"
-NOTE="$(tput setaf 3)[NOTE]$(tput sgr0)"
-WARN="$(tput setaf 166)[WARN]$(tput sgr0)"
-ACTION="$(tput setaf 6)[ACTION]$(tput sgr0)"
-RESET="$(tput sgr0)"
-EOL
+    echo "[ERROR] config.sh not found at $SCRIPT_DIR."
+    exit 1
 fi
-
-# Source configuration
 source "$SCRIPT_DIR/config.sh"
 
 # --- OS Detection ---
@@ -54,15 +33,10 @@ if [ "$OS" = "unknown" ]; then
     exit 1
 fi
 
-# Check if Global_functions.sh exists
-if [ "$OS" = "ubuntu" ]; then
-    GLOBAL_FUNCTIONS_PATH="$SCRIPT_DIR/modules/ubuntu/Global_functions.sh"
-elif [ "$OS" = "arch" ]; then
-    GLOBAL_FUNCTIONS_PATH="$SCRIPT_DIR/modules/arch/Global_functions.sh"
-fi
+# Source centralized global functions
+GLOBAL_FUNCTIONS_PATH="$SCRIPT_DIR/core/Global_functions.sh"
 if [ ! -f "$GLOBAL_FUNCTIONS_PATH" ]; then
-    echo "Global functions file not found at: $GLOBAL_FUNCTIONS_PATH"
-    echo "Please ensure the modules directory exists and contains Global_functions.sh"
+    echo "[ERROR] Global functions not found at: $GLOBAL_FUNCTIONS_PATH"
     exit 1
 fi
 source "$GLOBAL_FUNCTIONS_PATH"
@@ -112,24 +86,7 @@ MODULES=(
     "installpwsh:Install PowerShell"
 )
 
-# --- OS Detection ---
-OS="unknown"
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    case "$ID" in
-        ubuntu|debian)
-            OS="ubuntu" ;;
-        arch)
-            OS="arch" ;;
-    esac
-elif [ -f /etc/arch-release ]; then
-    OS="arch"
-fi
-
-if [ "$OS" = "unknown" ]; then
-    echo "[ERROR] Unsupported or undetected Linux distribution."
-    exit 1
-fi
+# (OS detection already completed above)
 # Function to ask yes/no question (define this before using it)
 ask_yes_no() {
     local prompt="$1"
@@ -222,11 +179,9 @@ if [ ${#selected_indices[@]} -gt 0 ]; then
             # Check if script exists and is executable
             if [ -f "$script_path" ]; then
                 chmod +x "$script_path"
-                "$script_path" || echo -e "${ERROR} Failed to execute: $script_path"
+                "$script_path" || echo -e "${ERROR} Failed: $script_path (see logs in $LOGS_DIR)"
             else
-                echo -e "${WARN} Script not found: $script_path"
-                echo "Looked for: $script_path"
-                ls -la "$(dirname "$script_path")"
+                echo -e "${WARN} Missing module script: $script_path"
             fi
         done
         
@@ -258,7 +213,4 @@ else
     echo -e "${NOTE} No modules selected. Exiting."
 fi
 
-echo -e "${NOTE} Thank you for using the Ubuntu Setup Builder!"
-
-
-echo "[NOTE] Thank you for using the Universal Linux Setup Builder!"
+echo -e "${NOTE} Thank you for using the Universal Linux Setup Builder!"

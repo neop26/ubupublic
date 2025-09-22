@@ -1,11 +1,11 @@
 #!/bin/bash
 # Enhanced system update script
 
-# Source the global functions using absolute path
+# Source global functions
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-if [ -f "$SCRIPT_DIR/Global_functions.sh" ]; then
-	source "$SCRIPT_DIR/Global_functions.sh"
-fi
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# shellcheck disable=SC1090
+source "$REPO_DIR/core/Global_functions.sh"
 
 echo -e "${NOTE} Starting system update process..."
 
@@ -40,13 +40,17 @@ sudo apt autoremove -y >> "$LOG" 2>&1
 sudo apt autoclean -y >> "$LOG" 2>&1
 check_command
 
+
 # Install system monitors one by one with error handling
 echo -e "${NOTE} Installing system monitoring tools..."
-for tool in htop ncdu neofetch; do
+for tool in htop ncdu; do
 	if ! install_package "$tool"; then
 		echo -e "${WARN} Failed to install $tool, continuing with other packages..."
 	fi
 done
+
+# Prefer Fastfetch over Neofetch
+"$(dirname "$(readlink -f "$0")")/fastfetch.sh"
 
 echo -e "${OK} System update completed successfully!"
 echo -e "${NOTE} Log saved to: $LOG"
