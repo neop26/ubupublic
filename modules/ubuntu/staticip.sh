@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
@@ -20,17 +19,19 @@ if [ -f /etc/netplan/50-cloud-init.yaml ]; then
 fi
 
 # Generate new netplan configuration
-cat << EOF | sudo tee /etc/netplan/01-netcfg.yaml >/dev/null
+cat <<EOF | sudo tee /etc/netplan/01-netcfg.yaml >/dev/null
 network:
-	version: 2
-	renderer: networkd
-	ethernets:
-		$interface:
-			dhcp4: no
-			addresses: [$static_ip]
-			gateway4: $gateway_ip
-			nameservers:
-				addresses: [$dns_ip]
+  version: 2
+  renderer: networkd
+  ethernets:
+    $interface:
+      dhcp4: no
+      addresses:
+        - $static_ip
+      gateway4: $gateway_ip
+      nameservers:
+        addresses:
+          - $dns_ip
 EOF
 
 # Apply the new netplan configuration

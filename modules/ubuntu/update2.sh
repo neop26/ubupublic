@@ -19,7 +19,17 @@ sudo snap list --all | awk '/disabled/{print $1, $3}' | while read snapname revi
 sudo apt-get --purge autoremove -y
 
 # Check for and remove orphaned packages
-sudo deborphan | xargs sudo apt-get -y remove --purge
+if command_exists deborphan; then
+  orphans=$(sudo deborphan)
+  if [ -n "$orphans" ]; then
+    echo -e "${NOTE} Removing orphaned packages via deborphan..."
+    echo "$orphans" | xargs sudo apt-get -y remove --purge
+  else
+    echo -e "${NOTE} No orphaned packages detected by deborphan."
+  fi
+else
+  echo -e "${NOTE} deborphan not installed; skipping orphaned package cleanup."
+fi
 
 # Clean up journal logs
 sudo journalctl --vacuum-time=2weeks

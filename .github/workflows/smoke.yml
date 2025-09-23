@@ -19,3 +19,14 @@ jobs:
       - name: Run smoke tests
         run: bash scripts/smoke.sh
 
+  ubuntu-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prime sudo session
+        run: sudo true
+
+      - name: Run Ubuntu module smoke suite
+        run: bash scripts/test_ubuntu_modules.sh

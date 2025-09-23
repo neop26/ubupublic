@@ -14,7 +14,7 @@ fi
 read -r -s -p "Enter the password: " password
 echo
 
-sudo adduser --gecos "" "$username"
+sudo adduser --gecos "" --disabled-password "$username"
 echo "$username:$password" | sudo chpasswd
 sudo usermod -aG sudo "$username"
 
