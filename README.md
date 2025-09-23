@@ -7,7 +7,7 @@ A powerful, modular setup builder for Ubuntu and Arch Linux systems. This toolki
 | ![Universal Setup Builder](https://img.shields.io/badge/Linux-Setup_Builder-orange?style=for-the-badge&logo=linux) | ![Version](https://img.shields.io/badge/Version-2.2.0-blue?style=for-the-badge) | ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge) | [![Smoke](https://github.com/neop26/ubupublic/actions/workflows/smoke.yml/badge.svg)](https://github.com/neop26/ubupublic/actions/workflows/smoke.yml) |
 | [![GitHub stars](https://img.shields.io/github/stars/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/stargazers) | [![GitHub forks](https://img.shields.io/github/forks/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/network) | [![GitHub issues](https://img.shields.io/github/issues/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/issues) | [![GitHub pull requests](https://img.shields.io/github/issues-pr/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/pulls) |
 | [![GitHub last commit](https://img.shields.io/github/last-commit/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/commits/main) | [![GitHub contributors](https://img.shields.io/github/contributors/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic/graphs/contributors) | [![GitHub repo size](https://img.shields.io/github/repo-size/neop26/ubupublic?style=for-the-badge)](https://github.com/neop26/ubupublic) | |
-| [![Bash](https://img.shields.io/badge/Bash-4.0+-black?style=for-the-badge&logo=gnu-bash)](https://www.gnu.org/software/bash/) | [![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04+-E95420?style=for-the-badge&logo=ubuntu)](https://ubuntu.com/) | | |
+| [![Bash](https://img.shields.io/badge/Bash-4.0+-black?style=for-the-badge&logo=gnu-bash)](https://www.gnu.org/software/bash/) | [![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04+-E95420?style=for-the-badge&logo=ubuntu)](https://ubuntu.com/) | [![Arch Linux](https://img.shields.io/badge/Arch-rolling-1793d1?style=for-the-badge&logo=arch-linux)](https://archlinux.org/) | |
 
 ## Architecture Overview
 
@@ -196,4 +196,5 @@ MIT - see `LICENSE`.
 
 ### v2.0.0 - 2024-05-25
 - Architecture redesign, interactive menu, logging, modularization
+
 
