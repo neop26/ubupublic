@@ -1,7 +1,11 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
-neofetch
+if command -v fastfetch >/dev/null 2>&1; then
+  fastfetch
+elif command -v neofetch >/dev/null 2>&1; then
+  neofetch
+fi
 
 export ZSH="$HOME/.oh-my-zsh"
 

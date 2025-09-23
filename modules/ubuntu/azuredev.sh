@@ -9,7 +9,17 @@ source "$REPO_DIR/core/Global_functions.sh"
 echo -e "${NOTE} Preparing Azure development environment..."
 
 # Essentials
-install_packages software-properties-common gnupg curl ca-certificates apt-transport-https
+echo -e "${NOTE} Refreshing APT package index..."
+sudo apt-get update >>"$LOG" 2>&1
+
+PREREQ_PACKAGES=(software-properties-common gnupg curl ca-certificates)
+if package_available apt-transport-https; then
+  PREREQ_PACKAGES+=(apt-transport-https)
+else
+  echo -e "${NOTE} Skipping apt-transport-https (not required on $(lsb_release -rs))."
+fi
+install_packages "${PREREQ_PACKAGES[@]}"
+ensure_apt_component universe || true
 
 # Terraform via HashiCorp APT repo
 echo -e "${NOTE} Adding HashiCorp APT repository for Terraform..."

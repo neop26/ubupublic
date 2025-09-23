@@ -32,7 +32,13 @@ fi
 
 # Make sure required packages are installed
 echo -e "${NOTE} Installing Docker prerequisites..."
-install_packages curl apt-transport-https ca-certificates gnupg lsb-release
+PREREQ_PACKAGES=(curl ca-certificates gnupg lsb-release)
+if package_available apt-transport-https; then
+  PREREQ_PACKAGES+=(apt-transport-https)
+else
+  echo -e "${NOTE} Skipping apt-transport-https (not required on $(lsb_release -rs))."
+fi
+install_packages "${PREREQ_PACKAGES[@]}"
 
 # Ask for installation method
 echo -e "${ACTION} Select Docker installation method:"

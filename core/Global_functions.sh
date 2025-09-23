@@ -207,3 +207,38 @@ download_file() {
   fi
   echo -e "${OK} Downloaded $output"
 }
+
+package_available() {
+  local package="$1"
+  if ! command_exists apt-cache; then
+    return 0
+  fi
+  local candidate
+  candidate=$(apt-cache policy "$package" 2>/dev/null | awk -F': ' '/Candidate:/ {print $2; exit}')
+  if [ -z "$candidate" ] || [ "$candidate" = "(none)" ]; then
+    return 1
+  fi
+  return 0
+}
+
+ensure_apt_component() {
+  local component="$1"
+  local label="$component"
+  if [ -z "$component" ]; then
+    return 0
+  fi
+  if ! command_exists add-apt-repository; then
+    install_package software-properties-common >/dev/null 2>&1 || true
+  fi
+  if grep -Rqs "^[^#].*\s$component\b" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
+    return 0
+  fi
+  echo -e "${NOTE} Enabling '$label' repository..."
+  if sudo add-apt-repository -y "$component" >>"$LOG" 2>&1; then
+    sudo apt-get update >>"$LOG" 2>&1
+    echo -e "${OK} '$label' repository enabled"
+  else
+    echo -e "${WARN} Failed to enable '$label' repository automatically"
+    return 1
+  fi
+}
