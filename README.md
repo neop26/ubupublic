@@ -81,14 +81,12 @@ flowchart TD
 
 ## Features
 
-- 📦 Modular design for easy customization
-- 🛠️ Enhanced error handling and logging
-- 🔄 Interactive menu-driven interface
-- 📊 Progress indicators for long-running operations
-- 📝 Detailed logging of all operations
-- 🌐 Ubuntu (20.04/22.04/24.04) and Arch Linux support
-- 🔒 Security-focused configurations
-- 🚀 Performance optimizations
+- Modular installers for Ubuntu and Arch powered by shared helpers
+- Interactive menu-driven workflow with consistent logging
+- Hardened package handling (idempotent installs, no curl | bash shortcuts)
+- Detailed per-run logs written to `Install-Logs/`
+- Tested combinations for Ubuntu 20.04/22.04/24.04 and Arch Linux
+- Automated smoke checks via GitHub Actions to prevent regressions
 
 ## Installation
 
@@ -144,17 +142,18 @@ Edit the `config.sh` file to customize default settings.
 
 ## Directory Structure
 
-```bash
+```text
 ubupublic/
-├── assets/                # Static configs, images, branding, etc.
-├── modules/
-│   ├── ubuntu/            # Ubuntu-specific install modules
-│   └── arch/              # Arch-specific install modules
-├── core/                  # Shared functions/utilities (logging, prompts, etc.)
-├── config.sh              # Canonical config (sourced by all scripts)
-├── setup.sh               # Main entrypoint (OS detection, menu, orchestration)
-├── README.md
-└── _archived/             # Legacy scripts, not loaded by default
+|-- assets/               # Static configs, images, branding, etc.
+|-- core/                 # Shared functions/utilities (logging, prompts, etc.)
+|-- modules/
+|   |-- ubuntu/           # Ubuntu-specific install modules
+|   `-- arch/             # Arch-specific install modules
+|-- scripts/              # Validation helpers (smoke/tests)
+|-- config.sh             # Canonical configuration (sourced by all scripts)
+|-- setup.sh              # Main entrypoint (OS detection, menu, orchestration)
+|-- _archived/           # Legacy scripts, not loaded by default
+`-- README.md
 ```
 
 ## Logging
@@ -173,21 +172,21 @@ This project was inspired by [JaKooLit](https://github.com/JaKooLit/Debian-Hyprl
 
 ## License
 
-MIT — see `LICENSE`.
+MIT - see `LICENSE`.
 
 ## CI & Tests
 
-- Smoke: All declared modules present for Ubuntu + Arch, bash -n OK, core sourcing OK
-- Last local run: 2025-09-22 23:21 UTC
-- Workflow: https://github.com/neop26/ubupublic/actions/workflows/smoke.yml (badge below)
-
+- `smoke` job: runs `bash scripts/smoke.sh` to verify module manifests, syntax, and sourcing
+- `ubuntu-modules` job: runs `bash scripts/test_ubuntu_modules.sh` against a safe subset on `ubuntu-latest`
+- Local smoke: `bash scripts/smoke.sh`
+- Local Ubuntu module sampler: `bash scripts/test_ubuntu_modules.sh`
 ## Changelog
 
 ### v2.2.0 - 2025-09-22
 - Consolidated helpers into `core/Global_functions.sh`; removed duplicates
 - Canonicalized `config.sh` and directory paths
 - Completed migration to `modules/<os>/*`; removed legacy `install-scripts/`
-- Neofetch deprecated → Fastfetch module added and used by default
+- Neofetch deprecated -> Fastfetch module added and used by default
 - Hardened installers (no curl-to-bash; better pathing/quoting)
 - Added Arch parity modules (update, fastfetch, zsh, docker, etc.)
 - Improved `setup.sh` orchestration and messages
@@ -197,3 +196,4 @@ MIT — see `LICENSE`.
 
 ### v2.0.0 - 2024-05-25
 - Architecture redesign, interactive menu, logging, modularization
+
