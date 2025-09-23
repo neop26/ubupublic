@@ -124,6 +124,7 @@ Follow the interactive prompts to select the modules you want to install.
 | Cockpit | Setup Cockpit web management console |
 | Git Config | Configure Git settings |
 | Node.js | Install Node.js and npm |
+| Desktop Apps (Arch) | Install workstation apps via yay/Flatpak (Arch only) |
 | Apache | Install Apache web server |
 | Create User | Create a new user account |
 | PowerShell | Install PowerShell (Ubuntu). Arch: AUR guidance |

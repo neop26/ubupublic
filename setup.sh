@@ -75,6 +75,7 @@ MODULES=(
     "fonts:Install recommended fonts"
     "fastfetch:Install and configure Fastfetch"
     "azuredev:Setup Azure development environment"
+    "aurapps:Install desktop apps from AUR/Flatpak"
     "docker:Install Docker and Docker Compose"
     "nvidiadrivers:Install NVIDIA drivers"
     "staticip:Configure static IP address"
