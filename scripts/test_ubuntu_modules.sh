@@ -6,10 +6,10 @@ export DEBIAN_FRONTEND=noninteractive
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 SAFE_MODULES=(
-  "modules/ubuntu/update.sh",
-  "modules/ubuntu/nettools.sh",
-  "modules/ubuntu/nodejsinstaller.sh",
-  "modules/ubuntu/fix_packages.sh",
+  "modules/ubuntu/update.sh"
+  "modules/ubuntu/nettools.sh"
+  "modules/ubuntu/nodejsinstaller.sh"
+  "modules/ubuntu/fix_packages.sh"
   "modules/ubuntu/installpwsh.sh"
 )
 
