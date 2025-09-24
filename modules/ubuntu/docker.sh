@@ -116,24 +116,16 @@ docker compose version 2>> "$LOG" || echo -e "${WARN} Docker Compose command not
 echo -e "${OK} Docker installation completed!"
 echo -e "${WARN} You need to log out and log back in for the Docker group changes to take effect."
 
-# Offer to install Portainer
-if ask_yes_no "Would you like to install Portainer for Docker management?" "y"; then
-	echo -e "${NOTE} Creating Portainer volume..."
-	docker volume create portainer_data >> "$LOG" 2>&1
-  
-	echo -e "${NOTE} Starting Portainer container..."
-	docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest >> "$LOG" 2>&1
-  
-	if [ $? -eq 0 ]; then
-		echo -e "${OK} Portainer installed successfully!"
-		echo -e "${NOTE} Access Portainer at https://$(hostname -I | awk '{print $1}'):9443"
-	else
-		echo -e "${ERROR} Failed to install Portainer. Please check the logs."
-	fi
-fi
+# Portainer install deferred
+# NOTE: Portainer setup requires the current user session to reload Docker group membership.
+#       To install manually after logging back in, run:
+#       docker volume create portainer_data
+#       docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always \
+#         -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
 
 # Clean up
 [ -f "get-docker.sh" ] && rm -f get-docker.sh
 
 echo -e "${NOTE} Docker installation log saved to: $LOG"
 exit 0
+
