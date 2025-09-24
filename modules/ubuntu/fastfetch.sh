@@ -6,23 +6,52 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck disable=SC1090
 source "$REPO_DIR/core/Global_functions.sh"
 
+ensure_apt_component universe || true
+
 echo -e "${NOTE} Installing Fastfetch..."
-ARCHITECTURE=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
-if [ "$ARCHITECTURE" != "amd64" ]; then
-  echo -e "${ERROR} This installer currently supports only amd64. Detected: $ARCHITECTURE"
-  exit 1
+sudo apt-get update >>"$LOG" 2>&1
+FASTFETCH_INSTALLED=false
+if install_package fastfetch; then
+  FASTFETCH_INSTALLED=true
+else
+  echo -e "${WARN} fastfetch not available via APT; attempting upstream package..."
+  ARCHITECTURE=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
+  case "$ARCHITECTURE" in
+    amd64)   ASSET="fastfetch-linux-amd64.deb" ;;
+    arm64)   ASSET="fastfetch-linux-aarch64.deb" ;;
+    armhf)   ASSET="fastfetch-linux-armv7l.deb" ;;
+    armel)   ASSET="fastfetch-linux-armv6l.deb" ;;
+    ppc64el) ASSET="fastfetch-linux-ppc64le.deb" ;;
+    riscv64) ASSET="fastfetch-linux-riscv64.deb" ;;
+    s390x)   ASSET="fastfetch-linux-s390x.deb" ;;
+    *)       ASSET="" ;;
+  esac
+
+  if [ -n "$ASSET" ]; then
+    TMP_DEB=$(mktemp /tmp/fastfetch-XXXXXX.deb)
+    if download_file "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/$ASSET" "$TMP_DEB"; then
+      if sudo dpkg -i "$TMP_DEB" >>"$LOG" 2>&1; then
+        FASTFETCH_INSTALLED=true
+      else
+        echo -e "${WARN} Upstream .deb install failed; attempting dependency fix..."
+        sudo apt-get install -f -y >>"$LOG" 2>&1 || true
+        if sudo dpkg -i "$TMP_DEB" >>"$LOG" 2>&1; then
+          FASTFETCH_INSTALLED=true
+        else
+          echo -e "${ERROR} Failed to install Fastfetch from upstream .deb package."
+        fi
+      fi
+    else
+      echo -e "${ERROR} Failed to download Fastfetch package from upstream (asset: $ASSET)."
+    fi
+    rm -f "$TMP_DEB"
+  else
+    echo -e "${WARN} Unsupported architecture ($ARCHITECTURE) for Fastfetch .deb fallback."
+  fi
 fi
 
-TMP_DEB="/tmp/fastfetch-linux-amd64.deb"
-FASTFETCH_URL="https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb"
-
-if ! download_file "$FASTFETCH_URL" "$TMP_DEB"; then
-  echo -e "${ERROR} Failed to download Fastfetch package from $FASTFETCH_URL"
-  exit 1
-fi
-
-if ! sudo apt install -y "$TMP_DEB" >>"$LOG" 2>&1; then
-  echo -e "${ERROR} Failed to install Fastfetch from $TMP_DEB"
+if [ "$FASTFETCH_INSTALLED" != true ]; then
+  echo -e "${ERROR} Fastfetch installation could not be completed."
   exit 1
 fi
 
@@ -40,7 +69,5 @@ if [ -f "$ASSETS_DIR/fastfetchconfig.jsonc" ]; then
 else
   echo -e "${WARN} Missing asset: $ASSETS_DIR/fastfetchconfig.jsonc"
 fi
-
-rm -f "$TMP_DEB"
 
 echo -e "${OK} Fastfetch installation complete."
