@@ -167,7 +167,9 @@ if [ ${#selected_indices[@]} -gt 0 ]; then
     
     # Confirm installation
     if ask_yes_no "Do you want to proceed with installation?" "y"; then
-        # Execute selected modules
+        overall_success=true
+        failed_modules=()
+        set +e
         for index in "${selected_indices[@]}"; do
             module_name="${MODULES[$index]%%:*}"
             module_desc="${MODULES[$index]#*:}"
@@ -177,14 +179,22 @@ if [ ${#selected_indices[@]} -gt 0 ]; then
             elif [ "$OS" = "arch" ]; then
                 script_path="$SCRIPT_DIR/modules/arch/${module_name}.sh"
             fi
-            # Check if script exists and is executable
             if [ -f "$script_path" ]; then
                 chmod +x "$script_path"
-                "$script_path" || echo -e "${ERROR} Failed: $script_path (see logs in $LOGS_DIR)"
+                if "$script_path"; then
+                    echo -e "${OK} Completed: $module_desc"
+                else
+                    echo -e "${ERROR} Failed: $script_path (see logs in $LOGS_DIR)"
+                    failed_modules+=("$module_desc")
+                    overall_success=false
+                fi
             else
                 echo -e "${WARN} Missing module script: $script_path"
+                failed_modules+=("$module_desc (missing script)")
+                overall_success=false
             fi
         done
+        set -e
         
         # Clean up
         if [ -e "JetBrainsMono.tar.xz" ]; then
@@ -192,10 +202,16 @@ if [ ${#selected_indices[@]} -gt 0 ]; then
             rm JetBrainsMono.tar.xz
         fi
         
-        echo -e "\n${OK} Setup completed successfully!"
+        if [ "$overall_success" = true ]; then
+            echo -e "\n${OK} Setup completed successfully!"
+        else
+            echo -e "\n${ERROR} Setup completed with failures in:"
+            for failed in "${failed_modules[@]}"; do
+                echo -e "  - $failed"
+            done
+        fi
         
-        # Show system information
-        if command -v fastfetch &> /dev/null; then
+        if [ "$overall_success" = true ] && command -v fastfetch &> /dev/null; then
             fastfetch
         else
             echo -e "\n${NOTE} System Information:"
@@ -207,6 +223,10 @@ if [ ${#selected_indices[@]} -gt 0 ]; then
             echo "Memory: $(free -h 2>/dev/null | awk '/Mem:/ {print $2}' || echo 'Unknown')"
             echo "Disk Space: $(df -h / 2>/dev/null | awk 'NR==2 {print $2}' || echo 'Unknown')"
         fi
+        
+        if [ "$overall_success" != true ]; then
+            exit 1
+        fi
     else
         echo -e "${NOTE} Installation canceled."
     fi
@@ -215,3 +235,4 @@ else
 fi
 
 echo -e "${NOTE} Thank you for using the Universal Linux Setup Builder!"
+

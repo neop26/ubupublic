@@ -8,7 +8,10 @@ source "$REPO_DIR/core/Global_functions.sh"
 
 echo -e "${NOTE} Installing Fastfetch..."
 sudo apt-get update >>"$LOG" 2>&1
-install_package fastfetch
+if ! install_package fastfetch; then
+  echo -e "${ERROR} Fastfetch package installation failed."
+  exit 1
+fi
 
 CFG_DIR="$HOME/.config/fastfetch"
 CFG_FILE="$CFG_DIR/config.jsonc"
@@ -26,4 +29,3 @@ else
 fi
 
 echo -e "${OK} Fastfetch installation complete."
-
