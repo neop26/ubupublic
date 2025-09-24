@@ -40,6 +40,19 @@ fi
 #sed -i '/#pokemon-colorscripts --no-title -s -r/s/^#//' assets/.zshrc
 
 # Set zsh as the default shell
-echo "Changing default shell to zsh, so you will be prompted"
-chsh -s "$(which zsh)"
+DEFAULT_ZSH=$(command -v zsh || true)
+if [ -z "$DEFAULT_ZSH" ]; then
+  echo -e "${WARN} Unable to locate zsh binary; skipping default shell change."
+else
+  if [ "${CI:-}" = "true" ]; then
+    echo -e "${NOTE} CI environment detected; skipping default shell change."
+  else
+    echo -e "${NOTE} Changing default shell to zsh..."
+    if command_exists sudo; then
+      sudo chsh -s "$DEFAULT_ZSH" "$USER"
+    else
+      chsh -s "$DEFAULT_ZSH"
+    fi
+  fi
+fi
 # Moved from install-scripts: zsh.sh (ubuntu-specific)

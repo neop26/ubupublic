@@ -4,6 +4,12 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # shellcheck disable=SC1090
 source "$REPO_DIR/core/Global_functions.sh"
+
+CI_DRY_RUN=false
+if [ "${CI:-}" = "true" ]; then
+  CI_DRY_RUN=true
+  echo -e "${NOTE} CI environment detected; running static IP module in dry-run mode."
+fi
 # Script to configure a static IP address on Ubuntu
 
 # Prompt for network interface, static IP, gateway, and DNS
@@ -34,8 +40,11 @@ network:
           - $dns_ip
 EOF
 
-# Apply the new netplan configuration
-echo "Static IP configuration has been applied."
-echo "This connection may drop. Reconnect using the new IP address."
-sudo netplan apply
+echo "Static IP configuration has been written to /etc/netplan/01-netcfg.yaml."
+if [ "$CI_DRY_RUN" = "true" ]; then
+  echo -e "${NOTE} Skipping netplan apply in CI to avoid disrupting networking."
+else
+  echo "This connection may drop. Reconnect using the new IP address."
+  sudo netplan apply
+fi
 # Moved from install-scripts: staticip.sh (ubuntu-specific)

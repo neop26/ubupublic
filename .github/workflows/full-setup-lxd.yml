@@ -1,0 +1,91 @@
+name: Full Setup (LXD)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  full-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install LXD
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo snap install lxd
+          sudo lxd waitready --timeout=30 || true
+          sudo lxd init --auto
+
+      - name: Run setup.sh inside LXD VM
+        shell: bash
+        run: |
+          set -euxo pipefail
+          INSTANCE="ubu-ci"
+          sudo lxc launch images:ubuntu/22.04/cloud "$INSTANCE" --vm --config security.nesting=true
+          sudo lxc exec "$INSTANCE" -- cloud-init status --wait
+          sudo lxc exec "$INSTANCE" -- bash -lc 'mkdir -p /workspace'
+          sudo lxc file push -r . "$INSTANCE"/workspace
+
+          sudo lxc exec "$INSTANCE" -- bash -s <<EOF
+          set -euxo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y git sudo
+          if ! id runner >/dev/null 2>&1; then
+            useradd -m runner
+          fi
+          echo "runner ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/runner
+          chmod 0440 /etc/sudoers.d/runner
+          chown -R runner:runner /workspace
+
+          iface=$(ip -o -4 route show to default | awk '{print $5; exit}')
+          addr=$(ip -o -4 addr show dev "$iface" | awk '{print $4; exit}')
+          gateway=$(ip route | awk '/default/ {print $3; exit}')
+          dns=$(awk '/^nameserver/ {print $2; exit}' /etc/resolv.conf)
+          dns=${dns:-1.1.1.1}
+
+          cat <<ANSWERS >/tmp/setup_answers
+          A
+          y
+          n
+          $iface
+          $addr
+          $gateway
+          $dns
+          CI User
+          ci@example.com
+          ciuser
+          ciPass123!
+ANSWERS
+
+          sudo -u runner bash -lc "
+            set -euxo pipefail
+            export TERM=xterm
+            export CI=true
+            export DEBIAN_FRONTEND=noninteractive
+            cd /workspace
+            ./setup.sh < /tmp/setup_answers
+          "
+EOF
+
+          mkdir -p Install-Logs
+          sudo lxc file pull -r "$INSTANCE"/workspace/Install-Logs Install-Logs || echo "No logs collected."
+
+      - name: Delete LXD instance
+        if: always()
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo lxc stop ubu-ci --force || true
+          sudo lxc delete ubu-ci --force || true
+
+      - name: Upload install logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-install-logs
+          path: Install-Logs
+          if-no-files-found: warn
