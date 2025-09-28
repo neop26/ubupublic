@@ -14,6 +14,13 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
 	sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
+# Sanitize agnoster.zsh-theme to remove non-ASCII characters from line 12
+THEME_FILE="$HOME/.oh-my-zsh/themes/agnoster.zsh-theme"
+if [ -f "$THEME_FILE" ]; then
+  # Remove non-ASCII characters from line 12
+  sed -i '12s/[^\x00-\x7F]//g' "$THEME_FILE"
+fi
+
 # Install zsh plugins
 ZSH_CUSTOM=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}
 
