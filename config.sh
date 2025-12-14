@@ -5,7 +5,8 @@
 VERSION="2.2.0"
 
 # Default timezone
-DEFAULT_TIMEZONE="UTC"
+# Set to Pacific/Auckland by default (change if you prefer another timezone)
+DEFAULT_TIMEZONE="Pacific/Auckland"
 
 # Compute repo base directory robustly
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
