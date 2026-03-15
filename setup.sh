@@ -85,6 +85,7 @@ MODULES=(
     "apache2:Install Apache web server"
     "createuser:Create a new user account"
     "installpwsh:Install PowerShell"
+    "copilot:Install GitHub Copilot CLI"
 )
 
 # (OS detection already completed above)
