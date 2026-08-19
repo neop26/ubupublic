@@ -14,5 +14,12 @@ pkg/
 src/
 *pokemon-colorscripts
 
-#Ignore vscode AI rules
-.github\instructions\codacy.instructions.md
+# Install logs are per-machine noise, not source
+Install-Logs/
+
+# Ignore vscode AI rules (git requires forward slashes)
+.github/instructions/codacy.instructions.md
+
+# Netplan and sshd backups produced by modules
+*.backup-*
+*.disabled

@@ -1,10 +1,12 @@
-# List of Ubuntu install modules
+# Ubuntu install modules. Keep in sync with the MODULES array in setup.sh.
 update.sh
+hostname.sh
 zsh.sh
 nettools.sh
 fonts.sh
 fastfetch.sh
 azuredev.sh
+aurapps.sh
 docker.sh
 nvidiadrivers.sh
 staticip.sh
@@ -14,3 +16,6 @@ nodejsinstaller.sh
 apache2.sh
 createuser.sh
 installpwsh.sh
+copilot.sh
+ufw.sh
+sshhardening.sh
