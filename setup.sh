@@ -89,6 +89,7 @@ MODULES=(
     "copilot:Install GitHub Copilot CLI"
     "ufw:Configure the UFW firewall"
     "sshhardening:Harden the SSH server"
+    "passwordlesssudo:Configure passwordless sudo (requires key-only SSH)"
 )
 
 # Display module menu

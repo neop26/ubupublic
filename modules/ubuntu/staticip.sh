@@ -49,7 +49,7 @@ if [ -z "$interface" ] || [ -z "$static_ip" ] || [ -z "$gateway_ip" ]; then
 fi
 
 if [[ "$static_ip" != */* ]]; then
-  echo -e "${ERROR} Address must include a prefix, e.g. 192.168.1.240/24"
+  echo -e "${ERROR} Address must include a prefix, e.g. 192.168.1.10/24"
   exit 1
 fi
 

@@ -19,3 +19,4 @@ installpwsh.sh
 copilot.sh
 ufw.sh
 sshhardening.sh
+passwordlesssudo.sh
